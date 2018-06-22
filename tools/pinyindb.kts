@@ -69,11 +69,16 @@ fun parseFile(readingPath: String) =
                     line.split("\\s".toRegex())
                 }
                 .filter {
-                    // U+3404	kMandarin	kuà
-                    it.size >= 3 && it[1] == "kMandarin"
-
+                    // U+343A	kHanyuPinyin	10124.030:yín,zhòng
+                    it.size >= 3 && it[1] == "kHanyuPinyin"
                 }.map {
-                    Triple(parseUnicode(it[0]), it[2], toAsciiPinyin(it[2]))
+                    it[2].substring(it[2].indexOf(':')).split(',')
+                            .map { it.trim() }
+                            .map { pinyin ->
+                                Triple(parseUnicode(it[0]), pinyin, toAsciiPinyin(pinyin))
+                            }
+                }.flatMap {
+                    it.stream()
                 }
 
 fun runSqlite3(): OutputStream {
