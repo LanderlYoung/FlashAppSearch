@@ -1,5 +1,6 @@
 import java.io.*
 import java.nio.file.Files.lines
+import kotlin.system.exitProcess
 import kotlin.text.*
 
 // parse file downloaded from
@@ -72,7 +73,7 @@ fun parseFile(readingPath: String) =
                     // U+343A	kHanyuPinyin	10124.030:yín,zhòng
                     it.size >= 3 && it[1] == "kHanyuPinyin"
                 }.map {
-                    it[2].substring(it[2].indexOf(':')).split(',')
+                    it[2].substring(it[2].indexOf(':') + 1).split(',')
                             .map { it.trim() }
                             .map { pinyin ->
                                 Triple(parseUnicode(it[0]), pinyin, toAsciiPinyin(pinyin))
@@ -80,6 +81,11 @@ fun parseFile(readingPath: String) =
                 }.flatMap {
                     it.stream()
                 }
+
+if (args.size > 1 && args[1] == "debug") {
+    parseFile(args[0]).forEach { println(it) }
+    exitProcess(0)
+}
 
 fun runSqlite3(): OutputStream {
     return ProcessBuilder(listOf("/usr/bin/sqlite3", "pinyin-all.db"))
