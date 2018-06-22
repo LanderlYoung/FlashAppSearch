@@ -1,7 +1,7 @@
 package io.github.landerlyoung.flashappsearch
 
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v7.app.AppCompatActivity
 import io.github.landerlyoung.flashappsearch.ui.main.MainFragment
 
 class MainActivity : AppCompatActivity() {
