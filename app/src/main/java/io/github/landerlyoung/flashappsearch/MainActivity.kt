@@ -14,6 +14,7 @@ class MainActivity : AppCompatActivity() {
                     .replace(R.id.container, MainFragment.newInstance())
                     .commitNow()
         }
+        Char.MIN_SURROGATE
     }
 
 }

@@ -1,5 +1,7 @@
 import java.io.*
 import java.nio.file.Files.lines
+import java.util.stream.Stream
+import javax.xml.stream.events.Characters
 import kotlin.system.exitProcess
 import kotlin.text.*
 
@@ -17,12 +19,12 @@ fun parseUnicode(unicode: String): String {
 }
 
 /**
-a: ["a", "\u0101", "\u00e1", "\u01ce", "\u00e0", "a"],
-e: ["e", "\u0113", "\u00e9", "\u011b", "\u00e8", "e"],
-i: ["i", "\u012b", "\u00ed", "\u01d0", "\u00ec", "i"],
-o: ["o", "\u014d", "\u00f3", "\u01d2", "\u00f2", "o"],
-u: ["u", "\u016b", "\u00fa", "\u01d4", "\u00f9", "u"],
-v: ["\u00fc", "\u01d6", "\u01d8", "\u01da", "\u01dc", "\u00fc"]
+a: ["a", "\u0101", "\u00e1", "\u01ce", "\u00e0"],
+e: ["e", "\u0113", "\u00e9", "\u011b", "\u00e8"],
+i: ["i", "\u012b", "\u00ed", "\u01d0", "\u00ec"],
+o: ["o", "\u014d", "\u00f3", "\u01d2", "\u00f2"],
+u: ["u", "\u016b", "\u00fa", "\u01d4", "\u00f9"],
+v: ["\u00fc", "\u01d6", "\u01d8", "\u01da", "\u01dc"]
 };
  */
 val toneMarks: Map<Char, String> = mutableMapOf<Char, String>().apply {
@@ -65,7 +67,7 @@ fun toAsciiPinyin(pinyin: String) =
  * @return (肥, féi, fei2)
  */
 fun parseFile(readingPath: String) =
-        BufferedReader(FileReader(readingPath)).lines()
+        BufferedReader(FileReader(readingPath)).lineSequence()
                 .map { line: String ->
                     line.split("\\s".toRegex())
                 }
@@ -79,44 +81,75 @@ fun parseFile(readingPath: String) =
                                 Triple(parseUnicode(it[0]), pinyin, toAsciiPinyin(pinyin))
                             }
                 }.flatMap {
-                    it.stream()
+                    it.asSequence()
                 }
 
-if (args.size > 1 && args[1] == "debug") {
+
+fun runSqlite3(dbFile: File): OutputStreamWriter {
+    dbFile.delete()
+    val process = ProcessBuilder(listOf("/usr/bin/sqlite3", dbFile.absolutePath))
+            .redirectError(ProcessBuilder.Redirect.INHERIT)
+            .redirectOutput(ProcessBuilder.Redirect.INHERIT)
+            .start()
+    return OutputStreamWriter(process.outputStream, Charsets.UTF_8)
+}
+
+fun createPinyinDb(source: Sequence<Triple<String, String, String>>, dbFile: File) {
+    runSqlite3(dbFile).use {
+        it.apply {
+            write("""
+                CREATE TABLE hanzi2pinyin
+                (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    hanzi TEXT NOT NULL,
+                    pinyin TEXT NOT NULL
+                );
+            """.trimMargin())
+            // write(""" CREATE INDEX hanzi_index ON hanzi2pinyin (hanzi); """)
+
+            source.forEach {
+                write("""
+            INSERT INTO hanzi2pinyin (hanzi,  pinyin)
+            VALUES ('${it.first}', '${it.third}'); """)
+            }
+            write(".exit")
+        }
+    }
+}
+
+// frequently used 3500 simplified/traditional
+// downloaded from https://github.com/kaienfr/Font/blob/master/learnfiles/chinese%E7%AE%80%E7%B9%81%E5%B8%B8%E7%94%A8%E5%AD%97%E8%A1%A8.txt
+fun frequentlyUsedHanzi() =
+        BufferedReader(FileReader(args[1])).lineSequence()
+                .flatMap { string ->
+                    mutableListOf<String>().also {
+                        for (i in 0 until string.length) {
+                            if (i + 1 < string.length && Character.isSurrogatePair(string[i], string[i + 1])) {
+                                it.add(string.substring(i, i + 2))
+                            } else {
+                                it.add(string.substring(i, i + 1))
+                            }
+                        }
+                    }.asSequence()
+                }
+                .toCollection(hashSetOf())
+
+if ("debug" in args) {
+    frequentlyUsedHanzi().apply {
+        println(this)
+        println(this.size)
+    }
     parseFile(args[0]).forEach { println(it) }
     exitProcess(0)
 }
 
-fun runSqlite3(): OutputStream {
-    return ProcessBuilder(listOf("/usr/bin/sqlite3", "pinyin-all.db"))
-            .redirectError(ProcessBuilder.Redirect.INHERIT)
-            .redirectOutput(ProcessBuilder.Redirect.INHERIT)
-            .start()
-            .outputStream
-}
+// All hanzi
+createPinyinDb(parseFile(args[0]), File("build/pinyin-all.db"))
 
-OutputStreamWriter(runSqlite3(), Charsets.UTF_8).use {
-
-    it.apply {
-        write("""
-CREATE TABLE han_pinyin
-(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    hanzi TEXT NOT NULL,
-    pinyin TEXT NOT NULL,
-    asciiPinyin TEXT NOT NULL
-);
-        """)
-        write(""" CREATE INDEX han_index ON han_pinyin (hanzi); """)
-        flush()
-
-        parseFile(args[0]).forEach {
-            write("""
-            INSERT INTO han_pinyin (hanzi, pinyin, asciiPinyin)
-            VALUES ('${it.first}', '${it.second}', '${it.third}'); """)
-            flush()
-        }
-        write(".exit")
+createPinyinDb(frequentlyUsedHanzi().let { fre ->
+    parseFile(args[0]).filter {
+        it.first in fre
     }
+}, File("build/pinyin-frequently-3500.db"))
 
-}
+
