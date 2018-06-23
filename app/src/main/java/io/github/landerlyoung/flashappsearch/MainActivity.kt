@@ -1,8 +1,10 @@
 package io.github.landerlyoung.flashappsearch
 
+import android.os.AsyncTask
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import io.github.landerlyoung.flashappsearch.search.repo.AppInfoRepo
+import android.util.Log
+import io.github.landerlyoung.flashappsearch.search.repo.PinyinConverter
 import io.github.landerlyoung.flashappsearch.ui.main.MainFragment
 
 class MainActivity : AppCompatActivity() {
@@ -15,7 +17,16 @@ class MainActivity : AppCompatActivity() {
                     .replace(R.id.container, MainFragment.newInstance())
                     .commitNow()
         }
-        AppInfoRepo.prepareAppInfo()
+        AsyncTask.THREAD_POOL_EXECUTOR.execute {
+            PinyinConverter().apply {
+                fun test(str: String) {
+                    Log.i("MainActivity", "$str: ${hanzi2Pinyin(str)} ")
+                }
+                test("头重脚轻")
+                test("HelloWorld")
+                test("Hello你World好，世界")
+                test("北极光")
+            }
+        }
     }
-
 }
