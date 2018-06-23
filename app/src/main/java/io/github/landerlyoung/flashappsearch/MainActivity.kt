@@ -19,13 +19,13 @@ class MainActivity : AppCompatActivity() {
         }
         AsyncTask.THREAD_POOL_EXECUTOR.execute {
             PinyinConverter().apply {
-                fun test(str: String) {
-                    Log.i("MainActivity", "$str: ${hanzi2Pinyin(str)} ")
+                packageManager.getInstalledApplications(0)?.forEach {
+                    val label = packageManager.getApplicationLabel(it)
+                    Log.i("MainActivity", it.packageName +
+                            ":" + label +
+                            "->" + hanzi2Pinyin(label)
+                    )
                 }
-                test("头重脚轻")
-                test("HelloWorld")
-                test("Hello你World好，世界")
-                test("北极光")
             }
         }
     }

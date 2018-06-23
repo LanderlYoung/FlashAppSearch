@@ -73,16 +73,27 @@ fun parseFile(readingPath: String) =
                 }
                 .filter {
                     // U+343A	kHanyuPinyin	10124.030:yín,zhòng
-                    it.size >= 3 && it[1] == "kHanyuPinyin"
+                    // U+9577	kHanyuPinlu	zhǎng(1879) cháng(1179)
+                    it.size >= 3 && (it[1] == "kHanyuPinlu" || it[1] == "kHanyuPinyin")
                 }.map {
-                    it[2].substring(it[2].indexOf(':') + 1).split(',')
-                            .map { it.trim() }
-                            .map { pinyin ->
-                                Triple(parseUnicode(it[0]), pinyin, toAsciiPinyin(pinyin))
-                            }
+                    val hanzi = it[0]
+                    if (it[1] == "kHanyuPinlu") {
+                        it.subList(2, it.size).asSequence().map {
+                            val pinyin = it.substring(0, it.indexOf('('))
+                            Triple(parseUnicode(hanzi), pinyin, toAsciiPinyin(pinyin))
+                        }
+                    } else {
+                        it[2].substring(it[2].indexOf(':') + 1)
+                                .split(',')
+                                .asSequence()
+                                .map { it.trim() }
+                                .map { pinyin ->
+                                    Triple(parseUnicode(hanzi), pinyin, toAsciiPinyin(pinyin))
+                                }
+                    }
                 }.flatMap {
                     it.asSequence()
-                }
+                }.distinct()
 
 
 fun runSqlite3(dbFile: File): OutputStreamWriter {
@@ -107,12 +118,17 @@ fun createPinyinDb(source: Sequence<Triple<String, String, String>>, dbFile: Fil
             """.trimMargin())
             // write(""" CREATE INDEX hanzi_index ON hanzi2pinyin (hanzi); """)
 
+            var count = 0
             source.forEach {
                 write("""
             INSERT INTO hanzi2pinyin (hanzi,  pinyin)
             VALUES ('${it.first}', '${it.third}'); """)
+
+                count++
             }
             write(".exit")
+
+            println("createDb ${dbFile.name} $count records")
         }
     }
 }
@@ -135,11 +151,11 @@ fun frequentlyUsedHanzi() =
                 .toCollection(hashSetOf())
 
 if ("debug" in args) {
+    parseFile(args[0]).forEach { println(it) }
     frequentlyUsedHanzi().apply {
         println(this)
         println(this.size)
     }
-    parseFile(args[0]).forEach { println(it) }
     exitProcess(0)
 }
 

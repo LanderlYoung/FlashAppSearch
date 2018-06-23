@@ -21,18 +21,25 @@ class PinyinConverter {
     private val db = PinyinDataBase.createDb(App.context)
     private val dao = db.pinyinDao()
 
-    private val pinyinCache = object : LruCache<String, String>(1024) {
+    val pinyinCache = object : LruCache<String, String>(1024) {
         override fun create(key: String?): String? {
             return key?.let {
                 dao.queryPinyin(it).foldRight(StringBuilder()) { entity, sb ->
                     sb.append(entity.pinyin)
-                }.toString()
+                }.let {
+                    if (it.isEmpty()) {
+                        null
+                    } else {
+                        it.toString()
+                    }
+                }
             }
         }
     }
 
     @WorkerThread
-    fun hanzi2Pinyin(hanzi: String) = chineseRegex.replace(hanzi) { mr ->
-        pinyinCache[mr.value]
+    fun hanzi2Pinyin(hanzi: CharSequence) = chineseRegex.replace(hanzi) { mr ->
+        val m = mr.value
+        pinyinCache[m] ?: m
     }
 }
