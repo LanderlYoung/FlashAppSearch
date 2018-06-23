@@ -2,6 +2,7 @@ package io.github.landerlyoung.flashappsearch
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import io.github.landerlyoung.flashappsearch.search.repo.AppInfoRepo
 import io.github.landerlyoung.flashappsearch.ui.main.MainFragment
 
 class MainActivity : AppCompatActivity() {
@@ -14,7 +15,7 @@ class MainActivity : AppCompatActivity() {
                     .replace(R.id.container, MainFragment.newInstance())
                     .commitNow()
         }
-        Char.MIN_SURROGATE
+        AppInfoRepo.prepareAppInfo()
     }
 
 }
