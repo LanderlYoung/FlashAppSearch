@@ -49,8 +49,10 @@ abstract class PinyinDataBase : RoomDatabase() {
 
         @WorkerThread
         fun createDb(context: Context): PinyinDataBase {
+            val packageUpdateTime = context.packageManager.getPackageInfo(context.packageName, 0).lastUpdateTime
             val pinyinFile = context.getDatabasePath(PinyinDataBase.DB_NAME)
-            if (!pinyinFile.exists()) {
+            if (!pinyinFile.exists() || pinyinFile.lastModified() < packageUpdateTime) {
+                pinyinFile.delete()
                 // copy asset to file
                 context.resources.assets.open("pinyin-frequently-3500.db").use { input ->
                     pinyinFile.outputStream().use { output ->
