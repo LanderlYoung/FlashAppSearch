@@ -26,6 +26,10 @@ data class Input(val keys: CharArray) {
     override fun hashCode(): Int {
         return Arrays.hashCode(keys)
     }
+
+    companion object {
+        val emptyInput = Input("")
+    }
 }
 
 object T9 {
