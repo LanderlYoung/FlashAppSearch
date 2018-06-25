@@ -66,6 +66,11 @@ object AppNameRepo {
             }
         }
 
+        if (i < input.size && j == pinyinName.length) {
+            // exhausted
+            return 0
+        }
+
         return matches * 100 / pinyinName.length
     }
 
