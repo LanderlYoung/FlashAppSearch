@@ -16,16 +16,17 @@ import io.github.landerlyoung.flashappsearch.search.model.PinyinDataBase
 class PinyinConverter {
     companion object {
         val chineseRegex = "[\\u3400-\\uD87E\\uDDD4]".toRegex()
+        val numberRegex = "\\d".toRegex()
     }
 
     private val db = PinyinDataBase.createDb(App.context)
     private val dao = db.pinyinDao()
 
-    val pinyinCache = object : LruCache<String, String>(1024) {
+    private val pinyinCache = object : LruCache<String, String>(1024) {
         override fun create(key: String?): String? {
             return key?.let {
                 dao.queryPinyin(it).foldRight(StringBuilder()) { entity, sb ->
-                    sb.append(entity.pinyin)
+                    sb.append(entity.pinyin.let { numberRegex.replace(it, "") })
                 }.let {
                     if (it.isEmpty()) {
                         null

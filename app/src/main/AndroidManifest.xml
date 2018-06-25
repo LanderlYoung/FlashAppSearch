@@ -15,7 +15,7 @@
         tools:ignore="GoogleAppIndexingWarning"
         >
         <activity
-            android:name=".search.AppSearchActivity"
+            android:name=".search.ui.AppSearchActivity"
             android:theme="@style/AppTheme.NoActionBar.Transparent"
             android:noHistory="true"
             >

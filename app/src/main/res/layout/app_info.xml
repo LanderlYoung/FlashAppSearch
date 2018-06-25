@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:bind="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+    >
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        >
+
+        <ImageView
+            android:id="@+id/app_icon"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+
+            android:maxWidth="96dp"
+
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintDimensionRatio="1:1"
+
+            tools:src="@mipmap/ic_launcher_round"
+            />
+
+        <TextView
+            android:id="@+id/app_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:layout_marginTop="4dp"
+            app:layout_constraintTop_toBottomOf="@+id/app_icon"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+
+            android:gravity="center"
+            android:textSize="14sp"
+            android:ellipsize="end"
+            android:maxLines="1"
+
+            tools:text="应用搜索-搜索搜索"
+            />
+
+    </android.support.constraint.ConstraintLayout>
+
+
+</layout>
