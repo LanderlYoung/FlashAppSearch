@@ -31,7 +31,7 @@ object AppNameRepo {
         val start = System.currentTimeMillis()
         val v = context.packageManager.getInstalledApplications(0)?.map {
             val label = context.packageManager.getApplicationLabel(it)
-            it.packageName to pinyinConverter.hanzi2Pinyin(label)
+            it.packageName to (label to pinyinConverter.hanzi2Pinyin(label))
         }?.associate { it } ?: mapOf()
 
         Log.v(TAG, "init appNamePinyinMapper cost time ${System.currentTimeMillis() - start}ms")
@@ -96,7 +96,7 @@ object AppNameRepo {
                 } else {
                     appNamePinyinMapper.entries
                             .asSequence()
-                            .map { it.key to it.value }
+                            .map { it.key to it.value.second }
                 }
             }
 
