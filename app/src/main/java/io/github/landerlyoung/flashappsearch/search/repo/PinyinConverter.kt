@@ -1,6 +1,7 @@
 package io.github.landerlyoung.flashappsearch.search.repo
 
 import android.support.annotation.WorkerThread
+import android.util.Log
 import android.util.LruCache
 import io.github.landerlyoung.flashappsearch.App
 import io.github.landerlyoung.flashappsearch.search.model.PinyinDataBase
@@ -17,6 +18,7 @@ class PinyinConverter {
     companion object {
         val chineseRegex = "[\\u3400-\\uD87E\\uDDD4]".toRegex()
         val numberRegex = "\\d".toRegex()
+        private val TAG = "PinyinConverter"
     }
 
     private val db = PinyinDataBase.createDb(App.context)
@@ -29,6 +31,7 @@ class PinyinConverter {
                     sb.append(entity.pinyin.let { numberRegex.replace(it, "") })
                 }.let {
                     if (it.isEmpty()) {
+                        Log.w(TAG, "can't find pinyin for $key")
                         null
                     } else {
                         it.toString()

@@ -1,7 +1,5 @@
 package io.github.landerlyoung.flashappsearch.search.model
 
-import java.util.*
-
 /**
  * <pre>
  * Author: taylorcyang@tencent.com
@@ -10,22 +8,9 @@ import java.util.*
  * Life with Passion, Code with Creativity.
  * </pre>
  */
-data class Input(val keys: CharArray) {
-    constructor(keys: String) : this(keys.toCharArray())
-    constructor(char: Char) : this(charArrayOf(char))
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is Input) return false
-
-        if (!Arrays.equals(keys, other.keys)) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        return Arrays.hashCode(keys)
-    }
+data class Input(val keys: List<Char>) {
+    constructor(keys: String) : this(keys.toCharArray().map { it.toLowerCase() })
+    constructor(char: Char) : this(listOf(char.toLowerCase()))
 
     companion object {
         val emptyInput = Input("")

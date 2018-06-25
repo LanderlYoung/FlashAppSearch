@@ -53,6 +53,8 @@ class AppSearchActivity : AppCompatActivity() {
             initRecyclerView(it.appList)
         }
 
+        AppNameRepo.quickInit(this)
+
         resultApps.observe(this, Observer {
             adapter.setData(it ?: listOf())
         })

@@ -2,6 +2,7 @@ package io.github.landerlyoung.flashappsearch.search.repo
 
 import android.annotation.SuppressLint
 import android.arch.lifecycle.ComputableLiveData
+import android.content.Context
 import android.util.Log
 import io.github.landerlyoung.flashappsearch.App
 import io.github.landerlyoung.flashappsearch.search.model.Input
@@ -14,31 +15,38 @@ import io.github.landerlyoung.flashappsearch.search.model.Input
  * Life with Passion, Code with Creativity.
  * </pre>
  */
+@SuppressLint("StaticFieldLeak")
 object AppNameRepo {
+    private const val TAG = "AppNameRepo"
+
+    @Volatile
+    private lateinit var context: Context
+
     private val pinyinConverter by lazy {
         PinyinConverter()
     }
 
     // packageName -> pinyin
     private val appNamePinyinMapper by lazy {
-        App.context.packageManager.getInstalledApplications(0)?.map {
-            val label = App.context.packageManager.getApplicationLabel(it)
+        context.packageManager.getInstalledApplications(0)?.map {
+            val label = context.packageManager.getApplicationLabel(it)
             it.packageName to pinyinConverter.hanzi2Pinyin(label)
         }?.associate { it } ?: mapOf()
     }
 
-    init {
+    fun quickInit(context: Context) {
+        this.context = context.applicationContext
         // init first
-        App.app.executors().execute {
+        App.executors().execute {
             // init
-            appNamePinyinMapper
+            Log.i(TAG, appNamePinyinMapper.toString())
         }
     }
 
     /**
      * calculate how good input match pinyinName, ranged [0, 100]
      */
-    private fun calculateMatchResult(input: List<Input>, pinyinName: String): Int {
+    internal fun calculateMatchResult(input: List<Input>, pinyinName: String): Int {
         // todo: need optimized
         var i = 0
         var j = 0
@@ -67,7 +75,7 @@ object AppNameRepo {
                 it.third
             }
 
-            Log.i("AppNameRepo", result.toString())
+            Log.i(TAG, result.toString())
             return result.map { it.first }
         }
     }.liveData

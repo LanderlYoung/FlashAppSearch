@@ -24,7 +24,6 @@ class App : Application() {
         app = this
     }
 
-    fun executors() = AsyncTask.THREAD_POOL_EXECUTOR!!
 
     @SuppressLint("RestrictedApi")
     private fun configArch() {
@@ -47,6 +46,8 @@ class App : Application() {
     }
 
     companion object {
+        fun executors() = AsyncTask.THREAD_POOL_EXECUTOR!!
+
         lateinit var app: App
             private set
 

@@ -27,7 +27,6 @@
             android:fontFamily="monospace"
             android:hint="搜索应用"
 
-            android:inputType="number"
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
             android:text="@={ui.inputText}"
