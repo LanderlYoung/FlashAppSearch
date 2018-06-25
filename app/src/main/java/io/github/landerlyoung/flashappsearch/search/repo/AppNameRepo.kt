@@ -28,10 +28,15 @@ object AppNameRepo {
 
     // packageName -> pinyin
     private val appNamePinyinMapper by lazy {
-        context.packageManager.getInstalledApplications(0)?.map {
+        val start = System.currentTimeMillis()
+        val v = context.packageManager.getInstalledApplications(0)?.map {
             val label = context.packageManager.getApplicationLabel(it)
             it.packageName to pinyinConverter.hanzi2Pinyin(label)
         }?.associate { it } ?: mapOf()
+
+        Log.v(TAG, "init appNamePinyinMapper cost time ${System.currentTimeMillis() - start}ms")
+
+        v
     }
 
     fun quickInit(context: Context) {
@@ -64,15 +69,58 @@ object AppNameRepo {
         return matches * 100 / pinyinName.length
     }
 
+    private var lastSearchInputs: List<Input>? = null
+    private var lastSearchResult: List<Triple<String, String, Int>>? = null
+
+    fun <T> List<T>.startWith(other: List<T>): Boolean {
+        val len = size
+        val olen = other.size
+        if (len >= olen) {
+            for (i in 0 until olen) {
+                if (other[i] != this[i]) {
+                    return false
+                }
+            }
+            return true
+        } else {
+            return false
+        }
+    }
+
+    fun getAllApps(keys: List<Input>) =
+            synchronized(this) {
+                if (lastSearchInputs != null && keys.startWith(lastSearchInputs!!)) {
+                    lastSearchResult!!.map {
+                        it.first to it.second
+                    }.asSequence()
+                } else {
+                    appNamePinyinMapper.entries
+                            .asSequence()
+                            .map { it.key to it.value }
+                }
+            }
+
     @SuppressLint("RestrictedApi")
     fun queryApp(keys: List<Input>) = object : ComputableLiveData<List<String>>() {
         override fun compute(): List<String> {
-            val result = appNamePinyinMapper.entries.map {
-                Triple(it.key, it.value, calculateMatchResult(keys, it.value))
+            if (keys.isEmpty()) {
+                return listOf()
+            }
+
+            val result = getAllApps(keys).map {
+                Triple(it.first, it.second, calculateMatchResult(keys, it.second))
             }.filter {
                 it.third > 0
             }.sortedByDescending {
                 it.third
+            }.fold(mutableListOf<Triple<String, String, Int>>()) { list, pkg ->
+                list.add(pkg)
+                list
+            }
+
+            synchronized(this) {
+                lastSearchInputs = keys
+                lastSearchResult = result
             }
 
             Log.i(TAG, result.toString())

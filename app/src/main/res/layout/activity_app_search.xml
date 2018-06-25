@@ -24,6 +24,7 @@
             android:layout_height="48dp"
             android:background="@android:color/white"
             android:fontFamily="monospace"
+            android:inputType="number"
             android:hint="搜索应用"
 
             android:paddingLeft="16dp"

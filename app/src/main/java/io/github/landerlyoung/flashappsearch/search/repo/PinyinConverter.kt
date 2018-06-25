@@ -27,14 +27,15 @@ class PinyinConverter {
     private val pinyinCache = object : LruCache<String, String>(1024) {
         override fun create(key: String?): String? {
             return key?.let {
-                dao.queryPinyin(it).foldRight(StringBuilder()) { entity, sb ->
-                    sb.append(entity.pinyin.let { numberRegex.replace(it, "") })
-                }.let {
+                dao.queryPinyin(it).foldRight(HashSet<String>()) { entity, hs ->
+                    hs.add(entity.pinyin.let { numberRegex.replace(it, "") })
+                    hs
+                }.joinToString(separator = "").let {
                     if (it.isEmpty()) {
                         Log.w(TAG, "can't find pinyin for $key")
                         null
                     } else {
-                        it.toString()
+                        it
                     }
                 }
             }

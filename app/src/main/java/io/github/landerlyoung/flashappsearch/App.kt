@@ -46,7 +46,7 @@ class App : Application() {
     }
 
     companion object {
-        fun executors() = AsyncTask.THREAD_POOL_EXECUTOR!!
+        fun executors() = AsyncTask.SERIAL_EXECUTOR!!
 
         lateinit var app: App
             private set
