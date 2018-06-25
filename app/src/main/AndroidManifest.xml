@@ -18,6 +18,7 @@
             android:name=".search.ui.AppSearchActivity"
             android:theme="@style/AppTheme.NoActionBar.Transparent"
             android:noHistory="true"
+            android:excludeFromRecents="true"
             >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

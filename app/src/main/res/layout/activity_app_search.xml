@@ -5,10 +5,9 @@
     >
 
     <data>
-
         <variable
-            name="ui"
-            type="io.github.landerlyoung.flashappsearch.search.ui.AppSearchActivity"
+            name="vm"
+            type="io.github.landerlyoung.flashappsearch.search.vm.AppSearchViewModel"
             />
     </data>
 
@@ -29,7 +28,7 @@
 
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
-            android:text="@={ui.inputText}"
+            android:text="@={vm.inputText}"
             android:textSize="24sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
