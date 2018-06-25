@@ -3,10 +3,11 @@ package io.github.landerlyoung.flashappsearch.search.vm
 import android.annotation.SuppressLint
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
-import android.arch.lifecycle.ComputableLiveData
+import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Transformations
 import android.graphics.drawable.Drawable
+import android.os.AsyncTask
 import android.util.LruCache
 import io.github.landerlyoung.flashappsearch.search.model.Input
 import io.github.landerlyoung.flashappsearch.search.model.T9
@@ -21,17 +22,7 @@ import io.github.landerlyoung.flashappsearch.search.repo.AppNameRepo
  * </pre>
  */
 class AppSearchViewModel(app: Application) : AndroidViewModel(app) {
-    private val appInfoCache = object : LruCache<String, Pair<Drawable?, CharSequence?>>(60) {
-        val packageManager = app.packageManager
-        override fun create(key: String): Pair<Drawable?, CharSequence?> {
-            val info = packageManager.getApplicationInfo(key, 0)
-            return info?.let {
-                Pair(packageManager.getApplicationIcon(key),
-                        packageManager.getApplicationLabel(it))
-
-            } ?: Pair<Drawable?, CharSequence?>(null, null)
-        }
-    }
+    private val appInfoCache = LruCache<String, Pair<Drawable?, CharSequence?>>(60)
 
     val inputText = MutableLiveData<CharSequence>()
 
@@ -57,10 +48,28 @@ class AppSearchViewModel(app: Application) : AndroidViewModel(app) {
         AppNameRepo.quickInit(app)
     }
 
+    fun fetchAppInfo(key: String): Pair<Drawable?, CharSequence?> {
+        val packageManager = getApplication<Application>().packageManager
+        val info = packageManager.getApplicationInfo(key, 0)
+        return info?.let {
+            Pair(packageManager.getApplicationIcon(key),
+                    packageManager.getApplicationLabel(it))
+
+        } ?: Pair<Drawable?, CharSequence?>(null, null)
+    }
     @SuppressLint("RestrictedApi")
-    fun queryAppInfo(packageName: String) = object : ComputableLiveData<Pair<Drawable?, CharSequence?>>() {
-        override fun compute(): Pair<Drawable?, CharSequence?> {
-            return appInfoCache[packageName]
+    fun queryAppInfo(packageName: String): LiveData<Pair<Drawable?, CharSequence?>> {
+        val result = MutableLiveData<Pair<Drawable?, CharSequence?>>()
+        val data = appInfoCache[packageName]
+        if (data != null) {
+            result.value = data
+        } else {
+            AsyncTask.SERIAL_EXECUTOR.execute {
+                val info = fetchAppInfo(packageName)
+                appInfoCache.put(packageName, info)
+                result.postValue(info)
+            }
         }
-    }.liveData
+        return result
+    }
 }

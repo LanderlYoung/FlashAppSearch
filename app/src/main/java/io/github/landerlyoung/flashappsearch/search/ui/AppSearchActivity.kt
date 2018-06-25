@@ -7,6 +7,7 @@ import android.arch.lifecycle.ViewModelProviders
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.util.DiffUtil
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -20,6 +21,8 @@ class AppSearchActivity : AppCompatActivity() {
 
     lateinit var viewModel: AppSearchViewModel
     private lateinit var adapter: Adapter
+
+    val useAnimation = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,6 +66,13 @@ class AppSearchActivity : AppCompatActivity() {
                 binding.appIcon.setImageDrawable(it?.first)
                 binding.appLabel.text = it?.second
             })
+            itemView.setOnClickListener {
+                packageName.value?.let {
+                    packageManager.getLaunchIntentForPackage(it)?.let {
+                        startActivity(it)
+                    }
+                }
+            }
         }
 
         fun setData(packageName: CharSequence?) {
@@ -71,12 +81,28 @@ class AppSearchActivity : AppCompatActivity() {
     }
 
     private inner class Adapter : RecyclerView.Adapter<VH>() {
-        private val data = mutableListOf<String>()
+        private var data: List<String> = listOf()
 
         fun setData(list: List<String>) {
-            data.clear()
-            data.addAll(list)
-            notifyDataSetChanged()
+            val oldList = data
+            val newList = list
+            data = newList
+            if (!useAnimation) {
+                notifyDataSetChanged()
+            } else {
+                DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+
+                    override fun getOldListSize() = oldList.size
+
+                    override fun getNewListSize() = newList.size
+
+                    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) =
+                            oldList[oldItemPosition] == newList[newItemPosition]
+
+                    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int) =
+                            oldList[oldItemPosition] == newList[newItemPosition]
+                }).dispatchUpdatesTo(this)
+            }
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
