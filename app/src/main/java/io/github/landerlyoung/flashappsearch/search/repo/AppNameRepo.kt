@@ -29,10 +29,15 @@ object AppNameRepo {
     // packageName -> pinyin
     private val appNamePinyinMapper by lazy {
         val start = System.currentTimeMillis()
-        val v = context.packageManager.getInstalledApplications(0)?.map {
-            val label = context.packageManager.getApplicationLabel(it)
-            it.packageName to (label to pinyinConverter.hanzi2Pinyin(label))
-        }?.associate { it } ?: mapOf()
+        val pm = context.packageManager
+        val v = pm.getInstalledApplications(0)
+                ?.asSequence()
+                ?.filter {
+                    pm.getLaunchIntentForPackage(it.packageName) != null
+                }?.map {
+                    val label = context.packageManager.getApplicationLabel(it)
+                    it.packageName to (label to pinyinConverter.hanzi2Pinyin(label).toLowerCase())
+                }?.associate { it } ?: mapOf()
 
         Log.v(TAG, "init appNamePinyinMapper cost time ${System.currentTimeMillis() - start}ms")
 
