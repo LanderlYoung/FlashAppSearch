@@ -44,7 +44,7 @@ class AppSearchActivity : AppCompatActivity() {
 
     private fun initRecyclerView(rv: RecyclerView) {
         adapter = Adapter()
-        val lm = GridLayoutManager(this, 5)
+        val lm = GridLayoutManager(this, 4)
         rv.layoutManager = lm
         rv.adapter = adapter
     }
