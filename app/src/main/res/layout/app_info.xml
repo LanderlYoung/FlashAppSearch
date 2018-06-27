@@ -6,9 +6,10 @@
     >
 
     <android.support.constraint.ConstraintLayout
-        android:layout_width="80dp"
+        android:layout_width="74dp"
         android:layout_height="wrap_content"
-        android:padding="8dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
         >
 
         <ImageView
@@ -18,8 +19,10 @@
 
             android:maxWidth="96dp"
 
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintDimensionRatio="1:1"
 
             tools:src="@mipmap/ic_launcher_round"
@@ -32,8 +35,8 @@
 
             android:layout_marginTop="4dp"
             app:layout_constraintTop_toBottomOf="@+id/app_icon"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
 
             android:gravity="center"
             android:textSize="12sp"

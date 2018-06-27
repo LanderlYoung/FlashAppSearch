@@ -16,9 +16,9 @@
 
     <style name="AppTheme.NoActionBar.Transparent">
         <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowBackground">@color/whiteWindowBackground</item>
         <item name="android:windowContentOverlay">@null</item>
-        <!--<item name="android:windowIsFloating">true</item>-->
-        <!--<item name="android:backgroundDimEnabled">false</item>-->
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
     </style>
 </resources>
