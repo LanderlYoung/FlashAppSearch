@@ -42,7 +42,7 @@ class KeyDrawable(_input: Input? = null) : Drawable() {
     }
 
     companion object {
-        private const val drawBaseLine = false
+        private const val drawBaseLine = true
     }
 
     private val paint = Paint().apply {

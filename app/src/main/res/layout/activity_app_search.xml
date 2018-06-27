@@ -53,8 +53,7 @@
             app:layout_constraintTop_toBottomOf="@+id/input"
             app:layout_constraintBottom_toTopOf="@+id/keyboard"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            />
+            app:layout_constraintRight_toRightOf="parent" />
 
         <android.support.constraint.ConstraintLayout
             android:id="@+id/keyboard"
@@ -76,7 +75,9 @@
                 app:layout_constraintEnd_toStartOf="@+id/key_2"
                 app:layout_constraintHorizontal_chainStyle="spread"
 
-                android:background="@{ui.key(T9.k1)}"
+                android:background="@drawable/ripple_background"
+
+                android:src="@{ui.key(T9.k1)}"
                 android:onClick="@{() -> vm.input(T9.k1)}" />
 
 
@@ -89,7 +90,9 @@
                 app:layout_constraintStart_toEndOf="@+id/key_1"
                 app:layout_constraintEnd_toStartOf="@+id/key_3"
 
-                android:background="@{ui.key(T9.k2)}"
+                android:background="@drawable/ripple_background"
+
+                android:src="@{ui.key(T9.k2)}"
                 android:onClick="@{() -> vm.input(T9.k2)}" />
 
             <ImageButton
@@ -102,7 +105,9 @@
                 app:layout_constraintStart_toEndOf="@+id/key_2"
                 app:layout_constraintEnd_toEndOf="parent"
 
-                android:background="@{ui.key(T9.k3)}"
+                android:background="@drawable/ripple_background"
+
+                android:src="@{ui.key(T9.k3)}"
                 android:onClick="@{() -> vm.input(T9.k3)}" />
 
             <!--line two-->
@@ -118,7 +123,9 @@
                 app:layout_constraintEnd_toStartOf="@+id/key_5"
                 app:layout_constraintHorizontal_chainStyle="spread"
 
-                android:background="@{ui.key(T9.k4)}"
+                android:background="@drawable/ripple_background"
+
+                android:src="@{ui.key(T9.k4)}"
                 android:onClick="@{() -> vm.input(T9.k4)}" />
 
 
@@ -131,7 +138,9 @@
                 app:layout_constraintStart_toEndOf="@+id/key_4"
                 app:layout_constraintEnd_toStartOf="@+id/key_6"
 
-                android:background="@{ui.key(T9.k5)}"
+                android:background="@drawable/ripple_background"
+
+                android:src="@{ui.key(T9.k5)}"
                 android:onClick="@{() -> vm.input(T9.k5)}" />
 
             <ImageButton
@@ -144,7 +153,8 @@
                 app:layout_constraintStart_toEndOf="@+id/key_5"
                 app:layout_constraintEnd_toEndOf="parent"
 
-                android:background="@{ui.key(T9.k6)}"
+                android:background="@drawable/ripple_background"
+                android:src="@{ui.key(T9.k6)}"
                 android:onClick="@{() -> vm.input(T9.k6)}"
 
                 />
@@ -161,7 +171,10 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/key_8"
                 app:layout_constraintHorizontal_chainStyle="spread"
-                android:background="@{ui.key(T9.k7)}"
+
+                android:background="@drawable/ripple_background"
+
+                android:src="@{ui.key(T9.k7)}"
                 android:onClick="@{() -> vm.input(T9.k7)}" />
 
 
@@ -174,7 +187,9 @@
                 app:layout_constraintStart_toEndOf="@+id/key_7"
                 app:layout_constraintEnd_toStartOf="@+id/key_9"
 
-                android:background="@{ui.key(T9.k8)}"
+                android:background="@drawable/ripple_background"
+
+                android:src="@{ui.key(T9.k8)}"
                 android:onClick="@{() -> vm.input(T9.k8)}" />
 
             <ImageButton
@@ -187,7 +202,9 @@
                 app:layout_constraintStart_toEndOf="@+id/key_8"
                 app:layout_constraintEnd_toEndOf="parent"
 
-                android:background="@{ui.key(T9.k9)}"
+                android:background="@drawable/ripple_background"
+
+                android:src="@{ui.key(T9.k9)}"
                 android:onClick="@{() -> vm.input(T9.k9)}" />
 
             <!--line four-->
@@ -202,7 +219,10 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/key_0"
                 app:layout_constraintHorizontal_chainStyle="spread"
-                android:background="@{ui.key(Input.emptyInput)}" />
+
+                android:background="@drawable/ripple_background"
+
+                android:src="@{ui.key(Input.emptyInput)}" />
 
 
             <ImageButton
@@ -214,7 +234,9 @@
                 app:layout_constraintStart_toEndOf="@+id/key_blank"
                 app:layout_constraintEnd_toStartOf="@+id/key_delete"
 
-                android:background="@{ui.key(T9.k0)}"
+                android:background="@drawable/ripple_background"
+
+                android:src="@{ui.key(T9.k0)}"
                 android:onClick="@{() -> vm.input(T9.k0)}" />
 
             <ImageButton
@@ -227,7 +249,9 @@
                 app:layout_constraintStart_toEndOf="@+id/key_0"
                 app:layout_constraintEnd_toEndOf="parent"
 
-                android:background="@{ui.key(T9.kDelete)}"
+                android:background="@drawable/ripple_background"
+
+                android:src="@{ui.key(T9.kDelete)}"
                 android:onClick="@{() -> vm.backspace()}"
                 android:onLongClick="@{() -> ui.clear()}" />
 
