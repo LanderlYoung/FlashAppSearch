@@ -18,54 +18,80 @@ data class Input(val keys: List<Char>) {
 }
 
 object T9 {
+    @JvmField
     val k0 = Input("0")
+    @JvmField
     val k1 = Input("1")
+    @JvmField
     val k2 = Input("2ABC")
+    @JvmField
     val k3 = Input("3DEF")
+    @JvmField
     val k4 = Input("4GHI")
+    @JvmField
     val k5 = Input("5JKL")
+    @JvmField
     val k6 = Input("6MNO")
+    @JvmField
     val k7 = Input("7PQRS")
+    @JvmField
     val k8 = Input("8TUV")
+    @JvmField
     val k9 = Input("9WXYZ")
 }
 
 object QWERT {
-    val k1 = Input('1')
-    val k2 = Input('2')
-    val k3 = Input('3')
-    val k4 = Input('4')
-    val k5 = Input('5')
-    val k6 = Input('6')
-    val k7 = Input('7')
-    val k8 = Input('8')
-    val k9 = Input('9')
-    val k0 = Input('0')
-    val kQ = Input('Q')
-    val kW = Input('W')
-    val kE = Input('E')
-    val kR = Input('R')
-    val kT = Input('T')
-    val kY = Input('Y')
-    val kU = Input('U')
-    val kI = Input('I')
-    val kO = Input('O')
-    val kP = Input('P')
+    @JvmField
+    val kQ = Input("Q1")
+    @JvmField
+    val kW = Input("W2")
+    @JvmField
+    val kE = Input("E3")
+    @JvmField
+    val kR = Input("R4")
+    @JvmField
+    val kT = Input("T5")
+    @JvmField
+    val kY = Input("Y6")
+    @JvmField
+    val kU = Input("U7")
+    @JvmField
+    val kI = Input("I8")
+    @JvmField
+    val kO = Input("O9")
+    @JvmField
+    val kP = Input("P0")
+    @JvmField
     val kA = Input('A')
+    @JvmField
     val kS = Input('S')
+    @JvmField
     val kD = Input('D')
+    @JvmField
     val kF = Input('F')
+    @JvmField
     val kG = Input('G')
+    @JvmField
     val kH = Input('H')
+    @JvmField
     val kJ = Input('J')
+    @JvmField
     val kK = Input('K')
+    @JvmField
     val kL = Input('L')
+    @JvmField
     val kZ = Input('Z')
+    @JvmField
     val kX = Input('X')
+    @JvmField
     val kC = Input('C')
+    @JvmField
     val kV = Input('V')
+    @JvmField
     val kB = Input('B')
+    @JvmField
     val kN = Input('N')
+    @JvmField
     val kM = Input('M')
 }
 

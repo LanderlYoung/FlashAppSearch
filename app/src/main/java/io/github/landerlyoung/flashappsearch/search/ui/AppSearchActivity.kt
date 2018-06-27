@@ -15,6 +15,7 @@ import android.view.ViewGroup
 import io.github.landerlyoung.flashappsearch.R
 import io.github.landerlyoung.flashappsearch.databinding.ActivityAppSearchBinding
 import io.github.landerlyoung.flashappsearch.databinding.AppInfoBinding
+import io.github.landerlyoung.flashappsearch.search.model.Input
 import io.github.landerlyoung.flashappsearch.search.vm.AppSearchViewModel
 
 class AppSearchActivity : AppCompatActivity() {
@@ -32,6 +33,7 @@ class AppSearchActivity : AppCompatActivity() {
                 this,
                 R.layout.activity_app_search
         ).let {
+            it.ui = this
             it.setLifecycleOwner(this)
             it.vm = viewModel
             initRecyclerView(it.appList)
@@ -41,6 +43,8 @@ class AppSearchActivity : AppCompatActivity() {
             adapter.setData(it ?: listOf())
         })
     }
+
+    fun key(key:Input) = KeyDrawable(key)
 
     private fun initRecyclerView(rv: RecyclerView) {
         adapter = Adapter()

@@ -1,6 +1,12 @@
 package io.github.landerlyoung.flashappsearch.search.ui
 
-import android.graphics.*
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.ColorFilter
+import android.graphics.Paint
+import android.graphics.PixelFormat
+import android.graphics.Rect
+import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import io.github.landerlyoung.flashappsearch.search.model.Input
 import kotlin.math.min
@@ -14,15 +20,15 @@ import kotlin.math.min
  * </pre>
  */
 class KeyDrawable(_input: Input? = null) : Drawable() {
-    var input: Input? = _input
+    var input: Input? = null
         set(value) {
             field = value
             if (value != null && value.keys.isNotEmpty()) {
-                firstLevel = value.keys[0].toString()
-                if (value.keys.size > 1) {
-//                    secondLevel = String(value.keys, 1, value.keys.size - 1)
+                firstLevel = value.keys[0].toString().toUpperCase()
+                secondLevel = if (value.keys.size > 1) {
+                    String(value.keys.subList(1, value.keys.size).toCharArray()).toUpperCase()
                 } else {
-                    secondLevel = null
+                    null
                 }
                 updateTextSize()
             } else {
@@ -31,30 +37,37 @@ class KeyDrawable(_input: Input? = null) : Drawable() {
             }
         }
 
+    init {
+        input = _input
+    }
+
+    companion object {
+        private const val drawBaseLine = false
+    }
+
     private val paint = Paint().apply {
         flags = Paint.ANTI_ALIAS_FLAG
+        typeface = Typeface.MONOSPACE
     }
 
     private var firstLevel: String? = null
     private var secondLevel: String? = null
-    private var firstLevelSize = 0
-    private var secondLevelSize = 0
+    private var firstLevelSize = 0f
+    private var secondLevelSize = 0f
 
-    private var firstLevelColor = Color.BLACK
-    private val secondLevelColor = 0xAA000000
+    var firstLevelColor: Int = Color.BLACK
+    val secondLevelColor: Int = 0xAA000000.toInt()
 
-    fun updateTextSize() {
+    private fun updateTextSize() {
         val bounds = bounds
-        val size = min(bounds.width(), bounds.height())
+        val size = min(bounds.width(), bounds.height()).toFloat()
         if (secondLevel != null) {
-
-        }
-        if (secondLevel != null) {
-            // 2, 6
-            firstLevelSize = size * 6 / 10
+            // 2, 5
+            firstLevelSize = size * 5 / 10
             secondLevelSize = size * 2 / 10
         } else {
-            firstLevelSize = size * 8 / 10
+            // 8
+            firstLevelSize = size * 7 / 10
         }
     }
 
@@ -68,12 +81,40 @@ class KeyDrawable(_input: Input? = null) : Drawable() {
         val height = bounds.height()
 
         if (secondLevel != null) {
+            val spacing = height.toFloat() / 10
 
-        } else {
+            paint.color = firstLevelColor
+            paint.textSize = firstLevelSize
+            val fTextWidth = paint.measureText(firstLevel)
+            val fX = (width - fTextWidth) / 2
+            val fY = spacing + (firstLevelSize - paint.ascent()) / 2
+            canvas.drawText(firstLevel, fX, fY, paint)
+            if (drawBaseLine) {
+                canvas.drawLine(0f, fY, width.toFloat(), fY, paint)
+            }
+
+            paint.color = secondLevelColor
+            paint.textSize = secondLevelSize
+            val sTextWidth = paint.measureText(secondLevel)
+            val sX = (width - sTextWidth) / 2
+            val sY = spacing + firstLevelSize + spacing + (secondLevelSize - paint.ascent()) / 2
+            canvas.drawText(secondLevel, sX, sY, paint)
+            if (drawBaseLine) {
+                canvas.drawLine(0f, sY, width.toFloat(), sY, paint)
+            }
+        } else if (firstLevel != null) {
+            paint.color = firstLevelColor
+            paint.textSize = firstLevelSize
+
             val textWidth = paint.measureText(firstLevel)
             val x = (width - textWidth) / 2
-//            val y = (height)
-//            canvas.drawText(firstLevel, )
+            val y = (height - paint.ascent()) / 2
+
+            canvas.drawText(firstLevel, x, y, paint)
+
+            if (drawBaseLine) {
+                canvas.drawLine(0f, y, width.toFloat(), y, paint)
+            }
         }
     }
 
