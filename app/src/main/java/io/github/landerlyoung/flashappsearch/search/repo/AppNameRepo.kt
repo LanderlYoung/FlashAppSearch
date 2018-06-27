@@ -55,12 +55,16 @@ object AppNameRepo {
      * calculate how good input matches pinyinName, ranged [0, 100]
      */
     internal fun calculateMatchResult(input: List<Input>, pinyinName: String): Double {
+        if (pinyinName.isBlank() || pinyinName.length < 2) {
+            return 0.0
+        }
+
         // todo: need optimized
         var i = 0
-        var j = 0
+        var j = 1
         var matches = 0.0
 
-        var lastUnMatch = -1
+        var lastUnMatch = 0
 
         fun indexMultiplier(index: Int): Double {
             return 8.0 / (index + 4) + 1
@@ -72,7 +76,7 @@ object AppNameRepo {
                 j++
                 matches += indexMultiplier(i)
             } else {
-                if ((lastUnMatch == -1 || pinyinName[lastUnMatch] == PinyinConverter.PINYIN_SPLITTER_CHAR)
+                if (pinyinName[lastUnMatch] == PinyinConverter.PINYIN_SPLITTER_CHAR
                         && pinyinName[j] == PinyinConverter.PINYIN_SPLITTER_CHAR) {
                     // last whole pinyin char is matched
 

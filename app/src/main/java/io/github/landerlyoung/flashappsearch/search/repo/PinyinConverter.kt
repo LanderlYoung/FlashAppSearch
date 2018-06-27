@@ -16,8 +16,12 @@ import io.github.landerlyoung.flashappsearch.search.model.PinyinDataBase
  */
 class PinyinConverter {
     companion object {
-        val chineseRegex = "[\\u3400-\\uD87E\\uDDD4]".toRegex()
+        val chineseRegex = "[\\u3400-\\uD87E\\uDDD4]".toRegex(RegexOption.IGNORE_CASE)
         val numberRegex = "\\d".toRegex()
+        val capitalCharsRegex = "[ABCDEFGHIJKLMNOPQRSTUVWXYZ]".toRegex()
+        val blankSpaceRegex = "\\s+".toRegex()
+        val redundantSplitter = "\\|{2,}".toRegex()
+
 
         const val PINYIN_SPLITTER_CHAR = '|'
         const val PINYIN_SPLITTER = PINYIN_SPLITTER_CHAR.toString()
@@ -47,8 +51,15 @@ class PinyinConverter {
     }
 
     @WorkerThread
-    fun hanzi2Pinyin(hanzi: CharSequence) = chineseRegex.replace(hanzi) { mr ->
-        val m = mr.value
-        (pinyinCache[m] ?: m) + PINYIN_SPLITTER
+    fun hanzi2Pinyin(hanzi: CharSequence): String {
+        val capitalized = capitalCharsRegex.replace(hanzi) {
+            PINYIN_SPLITTER + it.value
+        }
+        val pinyin = chineseRegex.replace(capitalized) { mr ->
+            val m = mr.value
+            (pinyinCache[m] ?: m) + PINYIN_SPLITTER
+        }
+        val noSpce = PINYIN_SPLITTER + blankSpaceRegex.replace(pinyin, PINYIN_SPLITTER) + PINYIN_SPLITTER
+        return redundantSplitter.replace(noSpce, PINYIN_SPLITTER)
     }
 }
