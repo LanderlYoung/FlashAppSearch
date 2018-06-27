@@ -41,7 +41,7 @@ object T9 {
     val k9 = Input("9WXYZ")
 
     @JvmField
-    val kDelete = Input("⌦")
+    val kDelete = Input("\u232b") // ⌫
 }
 
 object QWERT {

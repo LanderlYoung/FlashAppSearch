@@ -72,7 +72,12 @@ class AppSearchActivity : AppCompatActivity() {
         return ssb
     }
 
+    fun gotoSetting() {
+
+    }
+
     fun key(key:Input) = KeyDrawable(key)
+
     fun clear(): Boolean {
         viewModel.clear()
         return true

@@ -23,6 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fitsSystemWindows="true"
+        tools:background="@android:color/holo_orange_dark"
         tools:context=".search.ui.AppSearchActivity">
 
         <TextView
@@ -32,18 +33,35 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
 
-            android:background="@android:color/white"
+            android:background="@drawable/search_area_background"
             android:fontFamily="monospace"
             android:inputType="number"
             android:hint="搜索应用"
             android:paddingLeft="16dp"
-            android:paddingRight="16dp"
+            android:paddingRight="48dp"
             android:textSize="@dimen/search_input_text_size"
             android:gravity="center_vertical"
             android:text="@{ui.searchInput}"
 
-            tools:text="12345" />
+            tools:text="123456789012312321321312321231" />
+
+        <ImageButton
+            android:id="@+id/setting"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            app:layout_constraintTop_toTopOf="@+id/input"
+            app:layout_constraintBottom_toBottomOf="@+id/input"
+            app:layout_constraintRight_toRightOf="@+id/input"
+            android:background="@null"
+            android:src="@drawable/ic_settings"
+            android:contentDescription="setting"
+
+            android:onClick="@{() -> ui.gotoSetting()}"
+            />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/app_list"
@@ -76,9 +94,12 @@
                 app:layout_constraintHorizontal_chainStyle="spread"
 
                 android:background="@drawable/ripple_background"
+                android:contentDescription="1"
 
                 android:src="@{ui.key(T9.k1)}"
-                android:onClick="@{() -> vm.input(T9.k1)}" />
+                android:onClick="@{() -> vm.input(T9.k1)}"
+
+                tools:background="@android:color/holo_green_dark" />
 
 
             <ImageButton
@@ -91,9 +112,12 @@
                 app:layout_constraintEnd_toStartOf="@+id/key_3"
 
                 android:background="@drawable/ripple_background"
+                android:contentDescription="2"
 
                 android:src="@{ui.key(T9.k2)}"
-                android:onClick="@{() -> vm.input(T9.k2)}" />
+                android:onClick="@{() -> vm.input(T9.k2)}"
+
+                tools:background="@android:color/holo_green_dark" />
 
             <ImageButton
                 android:id="@+id/key_3"
@@ -106,9 +130,12 @@
                 app:layout_constraintEnd_toEndOf="parent"
 
                 android:background="@drawable/ripple_background"
+                android:contentDescription="3"
 
                 android:src="@{ui.key(T9.k3)}"
-                android:onClick="@{() -> vm.input(T9.k3)}" />
+                android:onClick="@{() -> vm.input(T9.k3)}"
+
+                tools:background="@android:color/holo_green_dark" />
 
             <!--line two-->
 
@@ -124,9 +151,12 @@
                 app:layout_constraintHorizontal_chainStyle="spread"
 
                 android:background="@drawable/ripple_background"
+                android:contentDescription="4"
 
                 android:src="@{ui.key(T9.k4)}"
-                android:onClick="@{() -> vm.input(T9.k4)}" />
+                android:onClick="@{() -> vm.input(T9.k4)}"
+
+                tools:background="@android:color/holo_green_light" />
 
 
             <ImageButton
@@ -139,9 +169,12 @@
                 app:layout_constraintEnd_toStartOf="@+id/key_6"
 
                 android:background="@drawable/ripple_background"
+                android:contentDescription="5"
 
                 android:src="@{ui.key(T9.k5)}"
-                android:onClick="@{() -> vm.input(T9.k5)}" />
+                android:onClick="@{() -> vm.input(T9.k5)}"
+
+                tools:background="@android:color/holo_green_light" />
 
             <ImageButton
                 android:id="@+id/key_6"
@@ -154,10 +187,12 @@
                 app:layout_constraintEnd_toEndOf="parent"
 
                 android:background="@drawable/ripple_background"
+                android:contentDescription="6"
+
                 android:src="@{ui.key(T9.k6)}"
                 android:onClick="@{() -> vm.input(T9.k6)}"
 
-                />
+                tools:background="@android:color/holo_green_light" />
 
             <!--line three-->
 
@@ -173,9 +208,11 @@
                 app:layout_constraintHorizontal_chainStyle="spread"
 
                 android:background="@drawable/ripple_background"
+                android:contentDescription="7"
 
                 android:src="@{ui.key(T9.k7)}"
-                android:onClick="@{() -> vm.input(T9.k7)}" />
+                android:onClick="@{() -> vm.input(T9.k7)}"
+                tools:background="@android:color/holo_green_dark" />
 
 
             <ImageButton
@@ -188,9 +225,12 @@
                 app:layout_constraintEnd_toStartOf="@+id/key_9"
 
                 android:background="@drawable/ripple_background"
+                android:contentDescription="8"
 
                 android:src="@{ui.key(T9.k8)}"
-                android:onClick="@{() -> vm.input(T9.k8)}" />
+                android:onClick="@{() -> vm.input(T9.k8)}"
+
+                tools:background="@android:color/holo_green_dark" />
 
             <ImageButton
                 android:id="@+id/key_9"
@@ -203,9 +243,12 @@
                 app:layout_constraintEnd_toEndOf="parent"
 
                 android:background="@drawable/ripple_background"
+                android:contentDescription="9"
 
                 android:src="@{ui.key(T9.k9)}"
-                android:onClick="@{() -> vm.input(T9.k9)}" />
+                android:onClick="@{() -> vm.input(T9.k9)}"
+
+                tools:background="@android:color/holo_green_dark" />
 
             <!--line four-->
 
@@ -221,8 +264,10 @@
                 app:layout_constraintHorizontal_chainStyle="spread"
 
                 android:background="@drawable/ripple_background"
+                android:importantForAccessibility="no"
 
-                android:src="@{ui.key(Input.emptyInput)}" />
+                android:src="@{ui.key(Input.emptyInput)}"
+                tools:background="@android:color/holo_green_light"/>
 
 
             <ImageButton
@@ -235,9 +280,12 @@
                 app:layout_constraintEnd_toStartOf="@+id/key_delete"
 
                 android:background="@drawable/ripple_background"
+                android:contentDescription="0"
 
                 android:src="@{ui.key(T9.k0)}"
-                android:onClick="@{() -> vm.input(T9.k0)}" />
+                android:onClick="@{() -> vm.input(T9.k0)}"
+
+                tools:background="@android:color/holo_green_light" />
 
             <ImageButton
                 android:id="@+id/key_delete"
@@ -250,10 +298,13 @@
                 app:layout_constraintEnd_toEndOf="parent"
 
                 android:background="@drawable/ripple_background"
+                android:contentDescription="delete"
 
                 android:src="@{ui.key(T9.kDelete)}"
                 android:onClick="@{() -> vm.backspace()}"
-                android:onLongClick="@{() -> ui.clear()}" />
+                android:onLongClick="@{() -> ui.clear()}"
+
+                tools:background="@android:color/holo_green_light" />
 
         </android.support.constraint.ConstraintLayout>
 
