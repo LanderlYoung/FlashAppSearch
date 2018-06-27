@@ -10,7 +10,6 @@ import android.graphics.drawable.Drawable
 import android.os.AsyncTask
 import android.util.LruCache
 import io.github.landerlyoung.flashappsearch.search.model.Input
-import io.github.landerlyoung.flashappsearch.search.model.T9
 import io.github.landerlyoung.flashappsearch.search.repo.AppNameRepo
 
 /**
@@ -24,42 +23,44 @@ import io.github.landerlyoung.flashappsearch.search.repo.AppNameRepo
 class AppSearchViewModel(app: Application) : AndroidViewModel(app) {
     private val appInfoCache = LruCache<String, Drawable?>(60)
 
-    val inputText = MutableLiveData<CharSequence>()
+    private val _input = MutableLiveData<MutableList<Input>>()
 
-    val resultApps = Transformations.switchMap(inputText, {
-        AppNameRepo.queryApp(it.map {
-            when (it) {
-                '0' -> T9.k0
-                '1' -> T9.k1
-                '2' -> T9.k2
-                '3' -> T9.k3
-                '4' -> T9.k4
-                '5' -> T9.k5
-                '6' -> T9.k6
-                '7' -> T9.k7
-                '8' -> T9.k8
-                '9' -> T9.k9
-                else -> Input.emptyInput
-            }
-        })
+    val input: LiveData<List<Input>>
+        get() = _input as LiveData<List<Input>>
+
+    val resultApps = Transformations.switchMap(_input, {
+        AppNameRepo.queryApp(it)
     })!!
 
     init {
         AppNameRepo.quickInit(app)
+        _input.value = mutableListOf()
     }
 
-
     fun input(key: Input) {
+        _input.value?.let {
+            it.add(key)
+            _input.value = it
+        }
     }
 
     fun backspace() {
+        _input.value?.let {
+            if (it.isNotEmpty()) {
+                it.removeAt(it.size - 1)
+            }
+            _input.value = it
+        }
     }
 
     fun clear() {
+        _input.value?.let {
+            it.clear()
+            _input.value = it
+        }
     }
 
-
-    fun fetchAppInfo(key: String): Drawable? {
+    private fun fetchAppInfo(key: String): Drawable? {
         val packageManager = getApplication<Application>().packageManager
         val info = packageManager.getApplicationInfo(key, 0)
         return info?.let {
@@ -67,6 +68,7 @@ class AppSearchViewModel(app: Application) : AndroidViewModel(app) {
 
         }
     }
+
     @SuppressLint("RestrictedApi")
     fun queryAppInfo(packageName: String): LiveData<Drawable?> {
         val result = MutableLiveData<Drawable?>()

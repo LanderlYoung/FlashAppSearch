@@ -60,7 +60,7 @@ class KeyDrawable(_input: Input? = null) : Drawable() {
 
     private fun updateTextSize() {
         val bounds = bounds
-        val size = min(bounds.width(), bounds.height()).toFloat()
+        val size = min(bounds.width() * 1.7f, bounds.height().toFloat())
         // 2, 5
         firstLevelSize = size * 5 / 10
         secondLevelSize = size * 2 / 10

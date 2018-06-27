@@ -1,5 +1,6 @@
 package io.github.landerlyoung.flashappsearch.search.ui
 
+import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.Transformations
@@ -10,6 +11,8 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.util.DiffUtil
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.text.SpannableStringBuilder
+import android.text.style.ImageSpan
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import io.github.landerlyoung.flashappsearch.R
@@ -23,7 +26,12 @@ class AppSearchActivity : AppCompatActivity() {
     lateinit var viewModel: AppSearchViewModel
     private lateinit var adapter: Adapter
 
-    val useAnimation = false
+    val searchInput: LiveData<CharSequence>
+        get() = _searchInput
+
+    val _searchInput = MutableLiveData<CharSequence>()
+
+    private val useAnimation = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,9 +47,29 @@ class AppSearchActivity : AppCompatActivity() {
             initRecyclerView(it.appList)
         }
 
+        viewModel.input.observe(this, Observer {
+            _searchInput.value = makeInputs(it)
+        })
         viewModel.resultApps.observe(this, Observer { it: List<Pair<String, CharSequence>>? ->
             adapter.setData(it ?: listOf())
         })
+    }
+
+    private fun makeInputs(inputs: List<Input>?): CharSequence? {
+        if (inputs == null || inputs.isEmpty()) {
+            return null
+        }
+        val ssb = SpannableStringBuilder()
+        inputs.forEach {
+            val start = ssb.length
+            ssb.append('X')
+            val drawable = key(it)
+            val size = resources.getDimensionPixelSize(R.dimen.search_input_text_size)
+            drawable.setBounds(0, 0, size * 1.5f.toInt(), size * 3)
+            val span = ImageSpan(drawable)
+            ssb.setSpan(span, start, start + 1, SpannableStringBuilder.SPAN_INCLUSIVE_EXCLUSIVE)
+        }
+        return ssb
     }
 
     fun key(key:Input) = KeyDrawable(key)
