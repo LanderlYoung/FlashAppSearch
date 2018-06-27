@@ -56,9 +56,9 @@
             app:layout_constraintTop_toTopOf="@+id/input"
             app:layout_constraintBottom_toBottomOf="@+id/input"
             app:layout_constraintRight_toRightOf="@+id/input"
-            android:background="@null"
             android:src="@drawable/ic_settings"
             android:contentDescription="setting"
+            android:background="@drawable/ripple_background"
 
             android:onClick="@{() -> ui.gotoSetting()}"
             />

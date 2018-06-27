@@ -16,11 +16,12 @@ import io.github.landerlyoung.flashappsearch.search.model.PinyinDataBase
  */
 class PinyinConverter {
     companion object {
-        val chineseRegex = "[\\u3400-\\uD87E\\uDDD4]".toRegex(RegexOption.IGNORE_CASE)
-        val numberRegex = "\\d".toRegex()
-        val capitalCharsRegex = "[ABCDEFGHIJKLMNOPQRSTUVWXYZ]".toRegex()
-        val blankSpaceRegex = "\\s+".toRegex()
-        val redundantSplitter = "\\|{2,}".toRegex()
+        private val chineseRegex = "[\\u3400-\\uD87E\\uDDD4]".toRegex(RegexOption.IGNORE_CASE)
+        private val numberRegex = "\\d".toRegex()
+        private val capitalCharsRegex = "[A-Z]".toRegex()
+        private val blankSpaceRegex = "\\s+".toRegex()
+        private val redundantSplitterRegex = "\\|{2,}".toRegex()
+        private val nonCharRegex = "[^\\da-zA-Z\\|]".toRegex()
 
 
         const val PINYIN_SPLITTER_CHAR = '|'
@@ -59,7 +60,8 @@ class PinyinConverter {
             val m = mr.value
             (pinyinCache[m] ?: m) + PINYIN_SPLITTER
         }
-        val noSpce = PINYIN_SPLITTER + blankSpaceRegex.replace(pinyin, PINYIN_SPLITTER) + PINYIN_SPLITTER
-        return redundantSplitter.replace(noSpce, PINYIN_SPLITTER)
+        val stripped =  nonCharRegex.replace(pinyin, PINYIN_SPLITTER)
+        val noSpce = PINYIN_SPLITTER + blankSpaceRegex.replace(stripped, PINYIN_SPLITTER) + PINYIN_SPLITTER
+        return redundantSplitterRegex.replace(noSpce, PINYIN_SPLITTER)
     }
 }
