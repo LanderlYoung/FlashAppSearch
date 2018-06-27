@@ -13,6 +13,7 @@ data class Input(val keys: List<Char>) {
     constructor(char: Char) : this(listOf(char.toLowerCase()))
 
     companion object {
+        @JvmField
         val emptyInput = Input("")
     }
 }
@@ -38,6 +39,9 @@ object T9 {
     val k8 = Input("8TUV")
     @JvmField
     val k9 = Input("9WXYZ")
+
+    @JvmField
+    val kDelete = Input("⌦")
 }
 
 object QWERT {

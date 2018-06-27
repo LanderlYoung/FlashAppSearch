@@ -61,14 +61,9 @@ class KeyDrawable(_input: Input? = null) : Drawable() {
     private fun updateTextSize() {
         val bounds = bounds
         val size = min(bounds.width(), bounds.height()).toFloat()
-        if (secondLevel != null) {
-            // 2, 5
-            firstLevelSize = size * 5 / 10
-            secondLevelSize = size * 2 / 10
-        } else {
-            // 8
-            firstLevelSize = size * 7 / 10
-        }
+        // 2, 5
+        firstLevelSize = size * 5 / 10
+        secondLevelSize = size * 2 / 10
     }
 
     override fun onBoundsChange(bounds: Rect?) {
@@ -80,7 +75,7 @@ class KeyDrawable(_input: Input? = null) : Drawable() {
         val width = bounds.width()
         val height = bounds.height()
 
-        if (secondLevel != null) {
+        if (firstLevel != null) {
             val spacing = height.toFloat() / 10
 
             paint.color = firstLevelColor
@@ -93,27 +88,16 @@ class KeyDrawable(_input: Input? = null) : Drawable() {
                 canvas.drawLine(0f, fY, width.toFloat(), fY, paint)
             }
 
-            paint.color = secondLevelColor
-            paint.textSize = secondLevelSize
-            val sTextWidth = paint.measureText(secondLevel)
-            val sX = (width - sTextWidth) / 2
-            val sY = spacing + firstLevelSize + spacing + (secondLevelSize - paint.ascent()) / 2
-            canvas.drawText(secondLevel, sX, sY, paint)
-            if (drawBaseLine) {
-                canvas.drawLine(0f, sY, width.toFloat(), sY, paint)
-            }
-        } else if (firstLevel != null) {
-            paint.color = firstLevelColor
-            paint.textSize = firstLevelSize
-
-            val textWidth = paint.measureText(firstLevel)
-            val x = (width - textWidth) / 2
-            val y = (height - paint.ascent()) / 2
-
-            canvas.drawText(firstLevel, x, y, paint)
-
-            if (drawBaseLine) {
-                canvas.drawLine(0f, y, width.toFloat(), y, paint)
+            if (secondLevel != null) {
+                paint.color = secondLevelColor
+                paint.textSize = secondLevelSize
+                val sTextWidth = paint.measureText(secondLevel)
+                val sX = (width - sTextWidth) / 2
+                val sY = spacing + firstLevelSize + spacing + (secondLevelSize - paint.ascent()) / 2
+                canvas.drawText(secondLevel, sX, sY, paint)
+                if (drawBaseLine) {
+                    canvas.drawLine(0f, sY, width.toFloat(), sY, paint)
+                }
             }
         }
     }

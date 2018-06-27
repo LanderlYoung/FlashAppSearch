@@ -45,6 +45,10 @@ class AppSearchActivity : AppCompatActivity() {
     }
 
     fun key(key:Input) = KeyDrawable(key)
+    fun clear(): Boolean {
+        viewModel.clear()
+        return true
+    }
 
     private fun initRecyclerView(rv: RecyclerView) {
         adapter = Adapter()

@@ -48,6 +48,17 @@ class AppSearchViewModel(app: Application) : AndroidViewModel(app) {
         AppNameRepo.quickInit(app)
     }
 
+
+    fun input(key: Input) {
+    }
+
+    fun backspace() {
+    }
+
+    fun clear() {
+    }
+
+
     fun fetchAppInfo(key: String): Drawable? {
         val packageManager = getApplication<Application>().packageManager
         val info = packageManager.getApplicationInfo(key, 0)
