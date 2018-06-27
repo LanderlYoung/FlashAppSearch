@@ -18,6 +18,10 @@ class PinyinConverter {
     companion object {
         val chineseRegex = "[\\u3400-\\uD87E\\uDDD4]".toRegex()
         val numberRegex = "\\d".toRegex()
+
+        const val PINYIN_SPLITTER_CHAR = '|'
+        const val PINYIN_SPLITTER = PINYIN_SPLITTER_CHAR.toString()
+
         private val TAG = "PinyinConverter"
     }
 
@@ -30,7 +34,7 @@ class PinyinConverter {
                 dao.queryPinyin(it).foldRight(HashSet<String>()) { entity, hs ->
                     hs.add(entity.pinyin.let { numberRegex.replace(it, "") })
                     hs
-                }.joinToString(separator = "").let {
+                }.joinToString(separator = PINYIN_SPLITTER).let {
                     if (it.isEmpty()) {
                         Log.w(TAG, "can't find pinyin for $key")
                         null
@@ -45,6 +49,6 @@ class PinyinConverter {
     @WorkerThread
     fun hanzi2Pinyin(hanzi: CharSequence) = chineseRegex.replace(hanzi) { mr ->
         val m = mr.value
-        pinyinCache[m] ?: m
+        (pinyinCache[m] ?: m) + PINYIN_SPLITTER
     }
 }

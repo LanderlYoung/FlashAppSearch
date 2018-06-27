@@ -37,7 +37,7 @@ class AppSearchActivity : AppCompatActivity() {
             initRecyclerView(it.appList)
         }
 
-        viewModel.resultApps.observe(this, Observer { it: List<Triple<String, CharSequence, Int>>? ->
+        viewModel.resultApps.observe(this, Observer { it: List<Pair<String, CharSequence>>? ->
             adapter.setData(it ?: listOf())
         })
     }
@@ -74,16 +74,16 @@ class AppSearchActivity : AppCompatActivity() {
             }
         }
 
-        fun setData(appInfo: Triple<String, CharSequence, Int>) {
+        fun setData(appInfo: Pair<String, CharSequence>) {
             this.packageName.value = appInfo.first
             binding.appLabel.text = appInfo.second
         }
     }
 
     private inner class Adapter : RecyclerView.Adapter<VH>() {
-        private var data: List<Triple<String, CharSequence, Int>> = listOf()
+        private var data: List<Pair<String, CharSequence>> = listOf()
 
-        fun setData(list: List<Triple<String, CharSequence, Int>>) {
+        fun setData(list: List<Pair<String, CharSequence>>) {
             val oldList = data
             val newList = list
             data = newList

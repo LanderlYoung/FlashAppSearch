@@ -6,6 +6,7 @@ import android.content.Context
 import android.util.Log
 import io.github.landerlyoung.flashappsearch.App
 import io.github.landerlyoung.flashappsearch.search.model.Input
+import io.github.landerlyoung.flashappsearch.search.utils.time
 
 /**
  * <pre>
@@ -28,20 +29,17 @@ object AppNameRepo {
 
     // packageName -> (name -> pinyin)
     private val appNamePinyinMapper by lazy {
-        val start = System.currentTimeMillis()
-        val pm = context.packageManager
-        val v = pm.getInstalledApplications(0)
-                ?.asSequence()
-                ?.filter {
-                    pm.getLaunchIntentForPackage(it.packageName) != null
-                }?.map {
-                    val label = context.packageManager.getApplicationLabel(it)
-                    it.packageName to (label to pinyinConverter.hanzi2Pinyin(label).toLowerCase())
-                }?.associate { it } ?: mapOf()
-
-        Log.v(TAG, "init appNamePinyinMapper cost time ${System.currentTimeMillis() - start}ms")
-
-        v
+        time("appNamePinyinMapper") {
+            val pm = context.packageManager
+            pm.getInstalledApplications(0)
+                    ?.asSequence()
+                    ?.filter {
+                        pm.getLaunchIntentForPackage(it.packageName) != null
+                    }?.map {
+                        val label = context.packageManager.getApplicationLabel(it)
+                        it.packageName to (label to pinyinConverter.hanzi2Pinyin(label).toLowerCase())
+                    }?.associate { it } ?: mapOf()
+        }
     }
 
     fun quickInit(context: Context) {
@@ -56,24 +54,39 @@ object AppNameRepo {
     /**
      * calculate how good input matches pinyinName, ranged [0, 100]
      */
-    internal fun calculateMatchResult(input: List<Input>, pinyinName: String): Int {
+    internal fun calculateMatchResult(input: List<Input>, pinyinName: String): Double {
         // todo: need optimized
         var i = 0
         var j = 0
-        var matches = 0
+        var matches = 0.0
+
+        var lastUnMatch = -1
+
+        fun indexMultiplier(index: Int): Double {
+            return 8.0 / (index + 4) + 1
+        }
+
         while (i < input.size && j < pinyinName.length) {
             if (pinyinName[j] in input[i].keys) {
                 i++
                 j++
-                matches++
+                matches += indexMultiplier(i)
             } else {
+                if ((lastUnMatch == -1 || pinyinName[lastUnMatch] == PinyinConverter.PINYIN_SPLITTER_CHAR)
+                        && pinyinName[j] == PinyinConverter.PINYIN_SPLITTER_CHAR) {
+                    // last whole pinyin char is matched
+
+                    val len = j - lastUnMatch - 1
+                    matches += indexMultiplier(lastUnMatch + 1) * len
+                }
+                lastUnMatch = j
                 j++
             }
         }
 
         if (i < input.size && j == pinyinName.length) {
             // exhausted
-            return 0
+            return 0.0
         }
 
         return matches * 100 / pinyinName.length
@@ -81,7 +94,7 @@ object AppNameRepo {
 
     private var lastSearchInputs: List<Input>? = null
     // package -> name -> score
-    private var lastSearchResult: Sequence<Triple<String, Pair<CharSequence, String>, Int>>? = null
+    private var lastSearchResult: Sequence<Triple<String, Pair<CharSequence, String>, Double>>? = null
 
     fun <T> List<T>.startWith(other: List<T>): Boolean {
         val len = size
@@ -114,18 +127,20 @@ object AppNameRepo {
             }
 
     @SuppressLint("RestrictedApi")
-    fun queryApp(keys: List<Input>) = object : ComputableLiveData<List<Triple<String, CharSequence, Int>>>() {
-        override fun compute(): List<Triple<String, CharSequence, Int>> {
+    fun queryApp(keys: List<Input>) = object : ComputableLiveData<List<Pair<String, CharSequence>>>() {
+        override fun compute(): List<Pair<String, CharSequence>> {
             if (keys.isEmpty()) {
                 return listOf()
             }
 
-            val result = getAllApps(keys).map {
-                Triple(it.first, it.second, calculateMatchResult(keys, it.second.second))
-            }.filter {
-                it.third > 0
-            }.sortedByDescending {
-                it.third
+            val result = time("queryApp") {
+                getAllApps(keys).map {
+                    Triple(it.first, it.second, calculateMatchResult(keys, it.second.second))
+                }.filter {
+                    it.third > 0
+                }.sortedByDescending {
+                    it.third
+                }
             }
 
             synchronized(this) {
@@ -133,12 +148,15 @@ object AppNameRepo {
                 lastSearchResult = result
             }
 
+            Log.i(TAG, "queryApp $keys")
+            result.take(4).forEach {
+                Log.i(TAG, it.toString())
+            }
 
-            return result.fold(mutableListOf<Triple<String, CharSequence, Int>>()) { list, pkg ->
-                list.add(Triple(pkg.first, pkg.second.first, pkg.third))
+            return result.fold(mutableListOf<Pair<String, CharSequence>>()) { list, pkg ->
+                list.add(pkg.first to pkg.second.first)
                 list
             }.also {
-                Log.i(TAG, it.toString())
             }
         }
     }.liveData
