@@ -26,7 +26,7 @@ object AppNameRepo {
         PinyinConverter()
     }
 
-    // packageName -> pinyin
+    // packageName -> (name -> pinyin)
     private val appNamePinyinMapper by lazy {
         val start = System.currentTimeMillis()
         val pm = context.packageManager
@@ -54,7 +54,7 @@ object AppNameRepo {
     }
 
     /**
-     * calculate how good input match pinyinName, ranged [0, 100]
+     * calculate how good input matches pinyinName, ranged [0, 100]
      */
     internal fun calculateMatchResult(input: List<Input>, pinyinName: String): Int {
         // todo: need optimized
@@ -80,7 +80,8 @@ object AppNameRepo {
     }
 
     private var lastSearchInputs: List<Input>? = null
-    private var lastSearchResult: List<Triple<String, String, Int>>? = null
+    // package -> name -> score
+    private var lastSearchResult: Sequence<Triple<String, Pair<CharSequence, String>, Int>>? = null
 
     fun <T> List<T>.startWith(other: List<T>): Boolean {
         val len = size
@@ -97,7 +98,10 @@ object AppNameRepo {
         }
     }
 
-    fun getAllApps(keys: List<Input>) =
+    /**
+     * @return <package, name, pinyin>
+     */
+    fun getAllApps(keys: List<Input>): Sequence<Pair<String, Pair<CharSequence, String>>> =
             synchronized(this) {
                 if (lastSearchInputs != null && keys.startWith(lastSearchInputs!!)) {
                     lastSearchResult!!.map {
@@ -105,27 +109,23 @@ object AppNameRepo {
                     }.asSequence()
                 } else {
                     appNamePinyinMapper.entries
-                            .asSequence()
-                            .map { it.key to it.value.second }
+                            .asSequence().map { it.key to it.value }
                 }
             }
 
     @SuppressLint("RestrictedApi")
-    fun queryApp(keys: List<Input>) = object : ComputableLiveData<List<String>>() {
-        override fun compute(): List<String> {
+    fun queryApp(keys: List<Input>) = object : ComputableLiveData<List<Triple<String, CharSequence, Int>>>() {
+        override fun compute(): List<Triple<String, CharSequence, Int>> {
             if (keys.isEmpty()) {
                 return listOf()
             }
 
             val result = getAllApps(keys).map {
-                Triple(it.first, it.second, calculateMatchResult(keys, it.second))
+                Triple(it.first, it.second, calculateMatchResult(keys, it.second.second))
             }.filter {
                 it.third > 0
             }.sortedByDescending {
                 it.third
-            }.fold(mutableListOf<Triple<String, String, Int>>()) { list, pkg ->
-                list.add(pkg)
-                list
             }
 
             synchronized(this) {
@@ -133,8 +133,13 @@ object AppNameRepo {
                 lastSearchResult = result
             }
 
-            Log.i(TAG, result.toString())
-            return result.map { it.first }
+
+            return result.fold(mutableListOf<Triple<String, CharSequence, Int>>()) { list, pkg ->
+                list.add(Triple(pkg.first, pkg.second.first, pkg.third))
+                list
+            }.also {
+                Log.i(TAG, it.toString())
+            }
         }
     }.liveData
 }

@@ -37,7 +37,7 @@ class AppSearchActivity : AppCompatActivity() {
             initRecyclerView(it.appList)
         }
 
-        viewModel.resultApps.observe(this, Observer {
+        viewModel.resultApps.observe(this, Observer { it: List<Triple<String, CharSequence, Int>>? ->
             adapter.setData(it ?: listOf())
         })
     }
@@ -63,8 +63,7 @@ class AppSearchActivity : AppCompatActivity() {
 
         init {
             appInfo.observe(this@AppSearchActivity, Observer {
-                binding.appIcon.setImageDrawable(it?.first)
-                binding.appLabel.text = it?.second
+                binding.appIcon.setImageDrawable(it)
             })
             itemView.setOnClickListener {
                 packageName.value?.let {
@@ -75,18 +74,20 @@ class AppSearchActivity : AppCompatActivity() {
             }
         }
 
-        fun setData(packageName: CharSequence?) {
-            this.packageName.value = packageName?.toString()
+        fun setData(appInfo: Triple<String, CharSequence, Int>) {
+            this.packageName.value = appInfo.first
+            binding.appLabel.text = appInfo.second
         }
     }
 
     private inner class Adapter : RecyclerView.Adapter<VH>() {
-        private var data: List<String> = listOf()
+        private var data: List<Triple<String, CharSequence, Int>> = listOf()
 
-        fun setData(list: List<String>) {
+        fun setData(list: List<Triple<String, CharSequence, Int>>) {
             val oldList = data
             val newList = list
             data = newList
+
             if (!useAnimation) {
                 notifyDataSetChanged()
             } else {
@@ -97,10 +98,10 @@ class AppSearchActivity : AppCompatActivity() {
                     override fun getNewListSize() = newList.size
 
                     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) =
-                            oldList[oldItemPosition] == newList[newItemPosition]
+                            oldList[oldItemPosition].first == newList[newItemPosition].first
 
                     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int) =
-                            oldList[oldItemPosition] == newList[newItemPosition]
+                            oldList[oldItemPosition].first == newList[newItemPosition].first
                 }).dispatchUpdatesTo(this)
             }
         }

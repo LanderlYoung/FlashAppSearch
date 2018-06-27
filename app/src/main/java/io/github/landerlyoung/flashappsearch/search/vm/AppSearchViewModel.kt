@@ -22,7 +22,7 @@ import io.github.landerlyoung.flashappsearch.search.repo.AppNameRepo
  * </pre>
  */
 class AppSearchViewModel(app: Application) : AndroidViewModel(app) {
-    private val appInfoCache = LruCache<String, Pair<Drawable?, CharSequence?>>(60)
+    private val appInfoCache = LruCache<String, Drawable?>(60)
 
     val inputText = MutableLiveData<CharSequence>()
 
@@ -48,18 +48,17 @@ class AppSearchViewModel(app: Application) : AndroidViewModel(app) {
         AppNameRepo.quickInit(app)
     }
 
-    fun fetchAppInfo(key: String): Pair<Drawable?, CharSequence?> {
+    fun fetchAppInfo(key: String): Drawable? {
         val packageManager = getApplication<Application>().packageManager
         val info = packageManager.getApplicationInfo(key, 0)
         return info?.let {
-            Pair(packageManager.getApplicationIcon(key),
-                    packageManager.getApplicationLabel(it))
+            packageManager.getApplicationIcon(key)
 
-        } ?: Pair<Drawable?, CharSequence?>(null, null)
+        }
     }
     @SuppressLint("RestrictedApi")
-    fun queryAppInfo(packageName: String): LiveData<Pair<Drawable?, CharSequence?>> {
-        val result = MutableLiveData<Pair<Drawable?, CharSequence?>>()
+    fun queryAppInfo(packageName: String): LiveData<Drawable?> {
+        val result = MutableLiveData<Drawable?>()
         val data = appInfoCache[packageName]
         if (data != null) {
             result.value = data
