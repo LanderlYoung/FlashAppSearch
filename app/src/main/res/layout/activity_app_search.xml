@@ -85,9 +85,9 @@
             <ImageButton
                 android:id="@+id/key_1"
                 android:layout_width="@dimen/t9_width"
-                android:layout_height="0dp"
+                android:layout_height="@dimen/t9_height"
                 android:layout_marginStart="8dp"
-                app:layout_constraintDimensionRatio="1:1"
+                 
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/key_2"
@@ -105,8 +105,7 @@
             <ImageButton
                 android:id="@+id/key_2"
                 android:layout_width="@dimen/t9_width"
-                android:layout_height="0dp"
-                app:layout_constraintDimensionRatio="1:1"
+                android:layout_height="@dimen/t9_height"
                 app:layout_constraintTop_toTopOf="@+id/key_1"
                 app:layout_constraintStart_toEndOf="@+id/key_1"
                 app:layout_constraintEnd_toStartOf="@+id/key_3"
@@ -122,9 +121,8 @@
             <ImageButton
                 android:id="@+id/key_3"
                 android:layout_width="@dimen/t9_width"
-                android:layout_height="0dp"
+                android:layout_height="@dimen/t9_height"
                 android:layout_marginEnd="8dp"
-                app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintTop_toTopOf="@+id/key_1"
                 app:layout_constraintStart_toEndOf="@+id/key_2"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -142,9 +140,8 @@
             <ImageButton
                 android:id="@+id/key_4"
                 android:layout_width="@dimen/t9_width"
-                android:layout_height="0dp"
+                android:layout_height="@dimen/t9_height"
                 android:layout_marginStart="8dp"
-                app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintTop_toBottomOf="@+id/key_1"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/key_5"
@@ -162,8 +159,7 @@
             <ImageButton
                 android:id="@+id/key_5"
                 android:layout_width="@dimen/t9_width"
-                android:layout_height="0dp"
-                app:layout_constraintDimensionRatio="1:1"
+                android:layout_height="@dimen/t9_height"
                 app:layout_constraintTop_toTopOf="@+id/key_4"
                 app:layout_constraintStart_toEndOf="@+id/key_4"
                 app:layout_constraintEnd_toStartOf="@+id/key_6"
@@ -179,9 +175,8 @@
             <ImageButton
                 android:id="@+id/key_6"
                 android:layout_width="@dimen/t9_width"
-                android:layout_height="0dp"
+                android:layout_height="@dimen/t9_height"
                 android:layout_marginEnd="8dp"
-                app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintTop_toTopOf="@+id/key_4"
                 app:layout_constraintStart_toEndOf="@+id/key_5"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -199,9 +194,8 @@
             <ImageButton
                 android:id="@+id/key_7"
                 android:layout_width="@dimen/t9_width"
-                android:layout_height="0dp"
+                android:layout_height="@dimen/t9_height"
                 android:layout_marginStart="8dp"
-                app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintTop_toBottomOf="@+id/key_4"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/key_8"
@@ -218,8 +212,7 @@
             <ImageButton
                 android:id="@+id/key_8"
                 android:layout_width="@dimen/t9_width"
-                android:layout_height="0dp"
-                app:layout_constraintDimensionRatio="1:1"
+                android:layout_height="@dimen/t9_height"
                 app:layout_constraintTop_toTopOf="@+id/key_7"
                 app:layout_constraintStart_toEndOf="@+id/key_7"
                 app:layout_constraintEnd_toStartOf="@+id/key_9"
@@ -235,9 +228,8 @@
             <ImageButton
                 android:id="@+id/key_9"
                 android:layout_width="@dimen/t9_width"
-                android:layout_height="0dp"
+                android:layout_height="@dimen/t9_height"
                 android:layout_marginEnd="8dp"
-                app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintTop_toTopOf="@+id/key_7"
                 app:layout_constraintStart_toEndOf="@+id/key_8"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -255,9 +247,8 @@
             <ImageButton
                 android:id="@+id/key_blank"
                 android:layout_width="@dimen/t9_width"
-                android:layout_height="0dp"
+                android:layout_height="@dimen/t9_height"
                 android:layout_marginStart="8dp"
-                app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintTop_toBottomOf="@+id/key_7"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/key_0"
@@ -273,8 +264,7 @@
             <ImageButton
                 android:id="@+id/key_0"
                 android:layout_width="@dimen/t9_width"
-                android:layout_height="0dp"
-                app:layout_constraintDimensionRatio="1:1"
+                android:layout_height="@dimen/t9_height"
                 app:layout_constraintTop_toTopOf="@+id/key_blank"
                 app:layout_constraintStart_toEndOf="@+id/key_blank"
                 app:layout_constraintEnd_toStartOf="@+id/key_delete"
@@ -290,9 +280,8 @@
             <ImageButton
                 android:id="@+id/key_delete"
                 android:layout_width="@dimen/t9_width"
-                android:layout_height="0dp"
+                android:layout_height="@dimen/t9_height"
                 android:layout_marginEnd="8dp"
-                app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintTop_toTopOf="@+id/key_blank"
                 app:layout_constraintStart_toEndOf="@+id/key_0"
                 app:layout_constraintEnd_toEndOf="parent"
