@@ -3,9 +3,12 @@ package io.github.landerlyoung.flashappsearch.search.repo
 import android.annotation.SuppressLint
 import android.arch.lifecycle.ComputableLiveData
 import android.content.Context
+import android.content.pm.PackageInfo
 import android.util.Log
 import io.github.landerlyoung.flashappsearch.App
 import io.github.landerlyoung.flashappsearch.BuildConfig
+import io.github.landerlyoung.flashappsearch.search.model.AppInfoDataBase
+import io.github.landerlyoung.flashappsearch.search.model.AppInfoEntity
 import io.github.landerlyoung.flashappsearch.search.model.Input
 import io.github.landerlyoung.flashappsearch.search.utils.time
 
@@ -29,17 +32,69 @@ object AppNameRepo {
     }
 
     // packageName -> (name -> pinyin)
-    private val appNamePinyinMapper by lazy {
+    private val appNamePinyinMapper: Map<String, Pair<CharSequence, String>> by lazy {
         time("appNamePinyinMapper") {
+            val appInfoDao = AppInfoDataBase.createDb(context).appInfoDao()
+            val allDbInfo = time("allDbInfo") {
+                appInfoDao.allAppInfo().fold(HashMap<String, AppInfoEntity>(), { acc, appInfoEntity ->
+                    acc[appInfoEntity.packageName] = appInfoEntity
+                    acc
+                })
+            }
+
             val pm = context.packageManager
-            pm.getInstalledApplications(0)
-                ?.asSequence()
-                ?.filter {
+            val allPackages = time("allPackages") {
+                pm.getInstalledPackages(0)!!.asSequence().filter {
                     pm.getLaunchIntentForPackage(it.packageName) != null
-                }?.map {
-                    val label = context.packageManager.getApplicationLabel(it)
-                    it.packageName to (label to pinyinConverter.hanzi2Pinyin(label).toLowerCase())
-                }?.associate { it } ?: mapOf()
+                }.fold(HashMap<String, PackageInfo>(), { acc, packageInfo ->
+                    acc[packageInfo.packageName] = packageInfo
+                    acc
+                })
+            }
+
+            val dbAppNames = allDbInfo.values.fold(HashSet<Pair<String, Long>>(), { acc, entity ->
+                acc.add(entity.packageName to entity.lastUpdated)
+                acc
+            })
+            val appNames = allPackages.values.fold(HashSet<Pair<String, Long>>(), { acc, packageInfo ->
+                acc.add(packageInfo.packageName to packageInfo.lastUpdateTime)
+                acc
+            })
+
+            val intersect = dbAppNames.intersect(appNames)
+            val delete = HashSet(dbAppNames).also { it.removeAll(intersect) }
+            val added = HashSet(appNames).also { it.removeAll(intersect) }
+
+            val mapper = HashMap<String, Pair<CharSequence, String>>()
+
+            intersect.forEach {
+                val record = allDbInfo[it.first]!!
+                mapper[record.packageName] = record.appName to record.pinyin
+            }
+
+            val newRecords = added.map {
+                val pkgInfo = allPackages[it.first]!!
+                val label = context.packageManager.getApplicationLabel(pkgInfo.applicationInfo).toString()
+                val pinyin = pinyinConverter.hanzi2Pinyin(label).toLowerCase()
+                AppInfoEntity(it.first, label, pinyin, pkgInfo.lastUpdateTime)
+            }
+
+            newRecords.forEach {
+                mapper[it.packageName] = it.appName to it.pinyin
+            }
+
+            App.executors().execute {
+                val deleteList = delete.map {
+                    allDbInfo[it.first]!!
+                }
+                appInfoDao.delete(deleteList)
+                appInfoDao.saveAllAppInfo(newRecords)
+
+                if (BuildConfig.DEBUG) {
+                    Log.i(TAG, "deleteList:$deleteList\nnewRecords:$newRecords")
+                }
+            }
+            mapper
         }
     }
 
@@ -48,7 +103,7 @@ object AppNameRepo {
         // init first
         App.executors().execute {
             // init
-            Log.i(TAG, appNamePinyinMapper.toString())
+            Log.i(TAG, "app count ${appNamePinyinMapper.size}")
         }
     }
 
