@@ -26,7 +26,7 @@ data class AppInfoEntity(
     @PrimaryKey
     val packageName: String,
     val appName: String,
-    val pinyin: String,
+    val pinyin: String?,
     val lastUpdated: Long
 )
 

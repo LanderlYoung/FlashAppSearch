@@ -44,9 +44,7 @@ object AppNameRepo {
 
             val pm = context.packageManager
             val allPackages = time("allPackages") {
-                pm.getInstalledPackages(0)!!.asSequence().filter {
-                    pm.getLaunchIntentForPackage(it.packageName) != null
-                }.fold(HashMap<String, PackageInfo>(), { acc, packageInfo ->
+                pm.getInstalledPackages(0).fold(HashMap<String, PackageInfo>(), { acc, packageInfo ->
                     acc[packageInfo.packageName] = packageInfo
                     acc
                 })
@@ -69,18 +67,27 @@ object AppNameRepo {
 
             intersect.forEach {
                 val record = allDbInfo[it.first]!!
-                mapper[record.packageName] = record.appName to record.pinyin
+                if (record.pinyin != null) {
+                    mapper[record.packageName] = record.appName to record.pinyin
+                }
             }
 
             val newRecords = added.map {
                 val pkgInfo = allPackages[it.first]!!
                 val label = context.packageManager.getApplicationLabel(pkgInfo.applicationInfo).toString()
-                val pinyin = pinyinConverter.hanzi2Pinyin(label).toLowerCase()
+
+                val pinyin = if (pm.getLaunchIntentForPackage(pkgInfo.packageName) == null) {
+                    null
+                } else {
+                    pinyinConverter.hanzi2Pinyin(label).toLowerCase()
+                }
                 AppInfoEntity(it.first, label, pinyin, pkgInfo.lastUpdateTime)
             }
 
             newRecords.forEach {
-                mapper[it.packageName] = it.appName to it.pinyin
+                if (it.pinyin != null) {
+                    mapper[it.packageName] = it.appName to it.pinyin
+                }
             }
 
             App.executors().execute {
