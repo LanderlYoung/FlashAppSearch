@@ -28,9 +28,9 @@ class AppSearchViewModel(app: Application) : AndroidViewModel(app) {
     val input: LiveData<List<Input>>
         get() = _input as LiveData<List<Input>>
 
-    val resultApps = Transformations.switchMap(_input, {
+    val resultApps = Transformations.switchMap(_input) {
         AppNameRepo.queryApp(it)
-    })!!
+    }!!
 
     init {
         AppNameRepo.quickInit(app)

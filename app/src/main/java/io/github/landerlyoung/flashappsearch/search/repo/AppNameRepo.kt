@@ -1,7 +1,8 @@
 package io.github.landerlyoung.flashappsearch.search.repo
 
 import android.annotation.SuppressLint
-import android.arch.lifecycle.ComputableLiveData
+import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.MutableLiveData
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.util.Log
@@ -28,7 +29,9 @@ object AppNameRepo {
     private lateinit var context: Context
 
     private val pinyinConverter by lazy {
-        PinyinConverter()
+        time("pinyinConverter") {
+            PinyinConverter()
+        }
     }
 
     // packageName -> (name -> pinyin)
@@ -36,28 +39,28 @@ object AppNameRepo {
         time("appNamePinyinMapper") {
             val appInfoDao = AppInfoDataBase.createDb(context).appInfoDao()
             val allDbInfo = time("allDbInfo") {
-                appInfoDao.allAppInfo().fold(HashMap<String, AppInfoEntity>(), { acc, appInfoEntity ->
+                appInfoDao.allAppInfo().fold(HashMap<String, AppInfoEntity>()) { acc, appInfoEntity ->
                     acc[appInfoEntity.packageName] = appInfoEntity
                     acc
-                })
+                }
             }
 
             val pm = context.packageManager
             val allPackages = time("allPackages") {
-                pm.getInstalledPackages(0).fold(HashMap<String, PackageInfo>(), { acc, packageInfo ->
+                pm.getInstalledPackages(0).fold(HashMap<String, PackageInfo>()) { acc, packageInfo ->
                     acc[packageInfo.packageName] = packageInfo
                     acc
-                })
+                }
             }
 
-            val dbAppNames = allDbInfo.values.fold(HashSet<Pair<String, Long>>(), { acc, entity ->
+            val dbAppNames = allDbInfo.values.fold(HashSet<Pair<String, Long>>()) { acc, entity ->
                 acc.add(entity.packageName to entity.lastUpdated)
                 acc
-            })
-            val appNames = allPackages.values.fold(HashSet<Pair<String, Long>>(), { acc, packageInfo ->
+            }
+            val appNames = allPackages.values.fold(HashSet<Pair<String, Long>>()) { acc, packageInfo ->
                 acc.add(packageInfo.packageName to packageInfo.lastUpdateTime)
                 acc
-            })
+            }
 
             val intersect = dbAppNames.intersect(appNames)
             val delete = HashSet(dbAppNames).also { it.removeAll(intersect) }
@@ -119,7 +122,7 @@ object AppNameRepo {
      */
     internal fun calculateMatchResult(input: List<Input>, pinyinName: String): Double {
         var score = 0.0
-        if (pinyinName.length > 2 && !pinyinName.isBlank()) {
+        if (pinyinName.length > 2) {
             var inputIndex = 0
             var pinyinIndex = 1
             var matches = 0.0
@@ -130,7 +133,7 @@ object AppNameRepo {
             }
 
             while (inputIndex < input.size && pinyinIndex < pinyinName.length) {
-                if (pinyinName[pinyinIndex] in input[inputIndex].keys) {
+                if (pinyinName[pinyinIndex] in input[inputIndex].keySets) {
                     inputIndex++
                     pinyinIndex++
                     matches += indexMultiplier(pinyinIndex)
@@ -139,7 +142,6 @@ object AppNameRepo {
                         && pinyinName[pinyinIndex] == PinyinConverter.PINYIN_SPLITTER_CHAR
                     ) {
                         // last whole pinyin char is matched
-
                         val len = pinyinIndex - lastUnMatch - 1
                         matches += indexMultiplier(lastUnMatch + 1) * len
                     }
@@ -154,9 +156,6 @@ object AppNameRepo {
             } else {
                 matches * 100 / pinyinName.length
             }
-        }
-        if (BuildConfig.DEBUG) {
-            Log.i(TAG, "pinyin=$pinyinName score=$score")
         }
         return score
     }
@@ -186,7 +185,7 @@ object AppNameRepo {
     fun getAllApps(keys: List<Input>): Sequence<Pair<String, Pair<CharSequence, String>>> =
         synchronized(this) {
             if (lastSearchInputs != null && keys.startWith(lastSearchInputs!!)) {
-                Log.i(TAG, "getAllApps result result from $keys")
+                Log.i(TAG, "getAllApps result from $keys")
                 lastSearchResult!!.map {
                     it.first to it.second
                 }.asSequence()
@@ -196,38 +195,68 @@ object AppNameRepo {
             }
         }
 
-    @SuppressLint("RestrictedApi")
-    fun queryApp(keys: List<Input>) = object : ComputableLiveData<List<Pair<String, CharSequence>>>() {
-        override fun compute(): List<Pair<String, CharSequence>> {
-            if (keys.isEmpty()) {
-                return listOf()
-            }
+    fun queryApp(keys: List<Input>): LiveData<List<Pair<String, CharSequence>>> {
+        return object : MutableLiveData<List<Pair<String, CharSequence>>>() {
+            @Volatile
+            private var isActive = false
 
-            val result =
-                getAllApps(keys).map {
-                    Triple(it.first, it.second, calculateMatchResult(keys, it.second.second))
-                }.filter {
-                    it.third > 0
-                }.sortedByDescending {
-                    it.third
-                }
+            override fun onActive() {
+                super.onActive()
+                Log.i(TAG, "active $keys")
+                isActive = true
 
-            synchronized(this) {
-                lastSearchInputs = keys
-                lastSearchResult = result
-            }
-
-            return time("queryApp $keys") {
-                Log.i(TAG, "queryApp $keys")
-                var count = 0
-                result.fold(mutableListOf()) { list, pkg ->
-                    if (BuildConfig.DEBUG && count++ < 4) {
-                        Log.i(TAG, pkg.toString())
+                App.executors().execute {
+                    try {
+                        postValue(compute())
+                    } catch (e: InterruptedException) {
+                        // bail out
                     }
-                    list.add(pkg.first to pkg.second.first)
-                    list
+                }
+            }
+
+            override fun onInactive() {
+                super.onInactive()
+                Log.i(TAG, "inActive $keys")
+//                isActive = false
+            }
+
+            fun ensureActive() {
+                if (!isActive) {
+                    throw InterruptedException()
+                }
+            }
+
+            fun compute(): List<Pair<String, CharSequence>> {
+                if (keys.isEmpty()) {
+                    return listOf()
+                }
+                return time("queryApp $keys") {
+                    val result =
+                        getAllApps(keys).map {
+                            ensureActive()
+                            Triple(it.first, it.second, calculateMatchResult(keys, it.second.second))
+                        }.filter {
+                            it.third > 0
+                        }.sortedByDescending {
+                            it.third
+                        }
+
+                    synchronized(this@AppNameRepo) {
+                        lastSearchInputs = keys
+                        lastSearchResult = result
+                    }
+
+                    var count = 0
+                    result.fold(mutableListOf()) { list, pkg ->
+                        ensureActive()
+                        if (BuildConfig.DEBUG && count++ < 4) {
+                            Log.i(TAG, pkg.toString())
+                        }
+                        list.add(pkg.first to pkg.second.first)
+                        list
+                    }
                 }
             }
         }
-    }.liveData
+    }
 }

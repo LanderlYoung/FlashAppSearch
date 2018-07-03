@@ -13,7 +13,12 @@ import android.util.Log
 
 inline fun <T> time(name: String, bloc: () -> T): T {
     val begin = System.currentTimeMillis()
-    val result = bloc()
-    Log.i("Time", "$name cost ${System.currentTimeMillis() - begin}ms")
-    return result
+    try {
+        val result = bloc()
+        Log.i("Time", "$name cost ${System.currentTimeMillis() - begin}ms")
+        return result
+    } catch (e: Throwable) {
+        Log.i("Time", "$name failed with $e, cost ${System.currentTimeMillis() - begin}ms")
+        throw  e
+    }
 }

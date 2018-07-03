@@ -29,7 +29,7 @@ class AppSearchActivity : AppCompatActivity() {
     val searchInput: LiveData<CharSequence>
         get() = _searchInput
 
-    val _searchInput = MutableLiveData<CharSequence>()
+    private val _searchInput = MutableLiveData<CharSequence>()
 
     private val useAnimation = false
 
