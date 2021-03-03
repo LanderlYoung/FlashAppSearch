@@ -10,7 +10,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DiffUtil
@@ -21,7 +20,6 @@ import io.github.landerlyoung.flashappsearch.databinding.ActivityAppSearchBindin
 import io.github.landerlyoung.flashappsearch.databinding.AppInfoBinding
 import io.github.landerlyoung.flashappsearch.search.model.Input
 import io.github.landerlyoung.flashappsearch.search.utils.mapMulti
-import io.github.landerlyoung.flashappsearch.search.utils.switchMapMulti
 import io.github.landerlyoung.flashappsearch.search.vm.AppSearchViewModel
 
 class AppSearchActivity : AppCompatActivity() {
@@ -105,12 +103,12 @@ class AppSearchActivity : AppCompatActivity() {
     ) {
         private val binding = DataBindingUtil.getBinding<AppInfoBinding>(itemView)!!
         private val packageName = MutableLiveData<String>()
-        private val appInfo = Transformations.switchMap(packageName) {
-            viewModel.queryAppInfo(it)
+        private val appIcon = Transformations.switchMap(packageName) {
+            viewModel.queryAppIcon(it)
         }
 
         init {
-            appInfo.observe(this@AppSearchActivity, {
+            appIcon.observe(this@AppSearchActivity, {
                 binding.appIcon.setImageDrawable(it)
             })
             itemView.setOnClickListener {

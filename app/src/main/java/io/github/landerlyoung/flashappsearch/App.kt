@@ -8,6 +8,7 @@ import android.content.Context
 import android.os.AsyncTask
 import android.os.Handler
 import android.os.Looper
+import java.util.concurrent.Executors
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
@@ -49,13 +50,20 @@ class App : Application() {
 
     companion object {
         private val _executors = ThreadPoolExecutor(
-            4, 4, 1, TimeUnit.MINUTES, LinkedBlockingDeque<Runnable>()
+            4, 4, 1, TimeUnit.MINUTES, LinkedBlockingDeque()
         ).apply {
             allowCoreThreadTimeOut(true)
         }
 
-        fun executors() = AsyncTask.SERIAL_EXECUTOR!!
-//        fun executors() = _executors
+        private val _serial = ThreadPoolExecutor(
+            1, 1, 1, TimeUnit.MINUTES, LinkedBlockingDeque()
+        ).apply {
+            allowCoreThreadTimeOut(true)
+        }
+
+        fun executors() = _executors
+
+        fun serialExecutors() = _serial
 
         lateinit var app: App
             private set

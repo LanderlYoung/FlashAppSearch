@@ -254,7 +254,7 @@ object AppNameRepo {
      */
     @SuppressLint("RestrictedApi")
     fun queryApp(keys: List<Input>): LiveData<List<Pair<String, CharSequence>>> {
-        return object : ComputableLiveData<List<Pair<String, CharSequence>>>() {
+        return object : ComputableLiveData<List<Pair<String, CharSequence>>>(App.serialExecutors()) {
             override fun compute(): List<Pair<String, CharSequence>> {
                 if (keys.isEmpty()) {
                     return listOf()
