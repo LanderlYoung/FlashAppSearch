@@ -1,9 +1,13 @@
-import java.io.*
-import java.nio.file.Files.lines
-import java.util.stream.Stream
-import javax.xml.stream.events.Characters
+// run with ~> kotlinc -script tools/pinyindb.kts
+
+import java.io.BufferedReader
+import java.io.File
+import java.io.FileReader
+import java.io.OutputStreamWriter
+import java.io.PrintWriter
 import kotlin.system.exitProcess
-import kotlin.text.*
+
+val PINYIN_INCLUDE_TONE = false
 
 // parse file downloaded from
 // https://www.unicode.org/Public/UCD/latest/ucd/Unihan.zip
@@ -57,8 +61,10 @@ fun toAsciiPinyin(pinyin: String) =
                     tone = it[1]
                 } ?: append(it)
             }
-            tone?.let {
-                append(it)
+            if (PINYIN_INCLUDE_TONE) {
+                tone?.let {
+                    append(it)
+                }
             }
         }.toString()
 
@@ -96,63 +102,94 @@ fun parseFile(readingPath: String) =
                 }.distinct()
 
 
-fun runSqlite3(dbFile: File): OutputStreamWriter {
+fun runSqlite3(dbFile: File, closure: (PrintWriter) -> Unit) {
     dbFile.delete()
     val process = ProcessBuilder(listOf("/usr/bin/sqlite3", dbFile.absolutePath))
-            .redirectError(ProcessBuilder.Redirect.INHERIT)
-            .redirectOutput(ProcessBuilder.Redirect.INHERIT)
-            .start()
-    return OutputStreamWriter(process.outputStream, Charsets.UTF_8)
+        .redirectError(ProcessBuilder.Redirect.INHERIT)
+        .redirectOutput(ProcessBuilder.Redirect.INHERIT)
+        .start()
+    closure(PrintWriter(OutputStreamWriter(process.outputStream, Charsets.UTF_8), true))
+    process.waitFor()
 }
 
 fun createPinyinDb(source: Sequence<Triple<String, String, String>>, dbFile: File) {
-    runSqlite3(dbFile).use {
-        it.apply {
-            write("""
+    println("start createDb ${dbFile.name}")
+
+    runSqlite3(dbFile) { p->
+        p.println(
+            """
                 CREATE TABLE hanzi2pinyin
                 (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                     hanzi TEXT NOT NULL,
                     pinyin TEXT NOT NULL
                 );
-            """.trimMargin())
-            // write(""" CREATE INDEX hanzi_index ON hanzi2pinyin (hanzi); """)
+            """.trimMargin()
+        )
+        p.println("CREATE INDEX hanzi_index ON hanzi2pinyin (hanzi);")
 
-            var count = 0
-            source.forEach {
-                write("""
-            INSERT INTO hanzi2pinyin (hanzi,  pinyin)
-            VALUES ('${it.first}', '${it.third}'); """)
-
-                count++
-            }
-            write(".exit")
-
-            println("createDb ${dbFile.name} $count records")
+        var count = 0
+        source.forEach {
+            p.println("INSERT INTO hanzi2pinyin (hanzi, pinyin) VALUES ('${it.first}', '${it.third}');")
+            count++
         }
+        p.println()
+        p.println(".exit")
+
+        println("done createDb ${dbFile.name} $count records")
     }
 }
 
 // frequently used 3500 simplified/traditional
 // downloaded from https://github.com/kaienfr/Font/blob/master/learnfiles/chinese%E7%AE%80%E7%B9%81%E5%B8%B8%E7%94%A8%E5%AD%97%E8%A1%A8.txt
-fun frequentlyUsedHanzi() =
-        BufferedReader(FileReader(args[1])).lineSequence()
-                .flatMap { string ->
-                    mutableListOf<String>().also {
-                        for (i in 0 until string.length) {
-                            if (i + 1 < string.length && Character.isSurrogatePair(string[i], string[i + 1])) {
-                                it.add(string.substring(i, i + 2))
-                            } else {
-                                it.add(string.substring(i, i + 1))
-                            }
-                        }
-                    }.asSequence()
+fun frequentlyUsedHanzi(frequentChineseCharactersPath: String) =
+    BufferedReader(FileReader(frequentChineseCharactersPath)).lineSequence()
+        .flatMap { string ->
+            mutableListOf<String>().also {
+                for (i in 0 until string.length) {
+                    if (i + 1 < string.length && Character.isSurrogatePair(
+                            string[i],
+                            string[i + 1]
+                        )
+                    ) {
+                        it.add(string.substring(i, i + 2))
+                    } else {
+                        it.add(string.substring(i, i + 1))
+                    }
                 }
-                .toCollection(hashSetOf())
+            }.asSequence()
+        }
+        .toCollection(hashSetOf())
+
+// prepare resources
+ProcessBuilder("/bin/sh")
+    .redirectError(ProcessBuilder.Redirect.INHERIT)
+    .redirectOutput(ProcessBuilder.Redirect.INHERIT)
+    .directory(File("build"))
+    .start()
+    .apply {
+        PrintWriter(outputStream).use {
+            it.println(
+                """
+            echo prepare resources
+            rm -r Unihan frequentChineseCharacters.txt *.db
+            wget https://www.unicode.org/Public/UCD/latest/ucd/Unihan.zip -O Unihan.zip
+            unzip Unihan.zip -d Unihan
+            wget https://raw.githubusercontent.com/kaienfr/Font/master/learnfiles/chinese%E7%AE%80%E7%B9%81%E5%B8%B8%E7%94%A8%E5%AD%97%E8%A1%A8.txt -O frequentChineseCharacters.txt
+            echo prepare resources, success!!!
+        """
+            )
+        }
+    }.waitFor()
+
+val unihanPath = "build/Unihan/Unihan_Readings.txt"
+val frequentChineseCharactersPath = "build/frequentChineseCharacters.txt"
+val pinyinAllDb = File("build/pinyin-all.db")
+val pinyinFrequentDb = File("build/pinyin-frequently-3500.db")
 
 if ("debug" in args) {
-    parseFile(args[0]).forEach { println(it) }
-    frequentlyUsedHanzi().apply {
+    parseFile(unihanPath).forEach { println(it) }
+    frequentlyUsedHanzi(frequentChineseCharactersPath).apply {
         println(this)
         println(this.size)
     }
@@ -160,12 +197,19 @@ if ("debug" in args) {
 }
 
 // All hanzi
-createPinyinDb(parseFile(args[0]), File("build/pinyin-all.db"))
+// not used for now
+// createPinyinDb(parseFile(unihanPath), pinyinAllDb)
 
-createPinyinDb(frequentlyUsedHanzi().let { fre ->
-    parseFile(args[0]).filter {
+// frequently ones
+createPinyinDb(frequentlyUsedHanzi(frequentChineseCharactersPath).let { fre ->
+    parseFile(unihanPath).filter {
         it.first in fre
     }
-}, File("build/pinyin-frequently-3500.db"))
+}, pinyinFrequentDb)
 
-
+println("copy file to target")
+File("app/src/main/assets/pinyin-frequently-3500.db").run {
+    delete()
+    parentFile.mkdirs()
+    this.writeBytes(pinyinFrequentDb.readBytes())
+}
