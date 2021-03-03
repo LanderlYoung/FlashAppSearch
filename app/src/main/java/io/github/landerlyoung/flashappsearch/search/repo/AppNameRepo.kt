@@ -141,13 +141,43 @@ object AppNameRepo {
      */
     internal fun calculateMatchResult(input: List<Input>, pinyinName: String): Double {
         var inputIndex = 0
-        var pinyinIndex = 0
         var matches = 0.0
 
+        var pinyinIndex = 0
+        var wordIndex = 0
+        var charIndex = 0
+        var matchedWord = false
         while (inputIndex < input.size && pinyinIndex < pinyinName.length) {
-            if (pinyinName[pinyinIndex] in input[inputIndex].keySets) {
-                matches += indexMultiplier(pinyinIndex) + indexMultiplier(inputIndex)
-                inputIndex++
+            when (pinyinName[pinyinIndex]) {
+                PinyinConverter.PINYIN_SPLITTER_CHAR -> {
+                    wordIndex++
+                    charIndex = 0
+                    matchedWord = false
+                }
+                PinyinConverter.PINYIN_SPLITTER_MULTI_CHAR -> {
+                    if (matchedWord) {
+                        // 该字的某个读音已经匹配了，忽略多音字的其他音节
+                        pinyinIndex++
+                        while (pinyinIndex < pinyinName.length &&
+                            pinyinName[pinyinIndex] != PinyinConverter.PINYIN_SPLITTER_CHAR
+                        ) {
+                            pinyinIndex++
+                        }
+                        continue
+                    }
+                    charIndex = 0
+                }
+                in input[inputIndex].keySets -> {
+                    matchedWord = true
+                    // 计算得分
+                    var score = indexMultiplier(pinyinIndex + charIndex)
+                    if (charIndex == 0) {
+                        // 首字母权重增加
+                        score *= 2
+                    }
+                    matches += score
+                    inputIndex++
+                }
             }
             pinyinIndex++
         }
@@ -156,7 +186,16 @@ object AppNameRepo {
             // exhausted
             0.0
         } else {
-            matches * 100 / pinyinName.length
+            if (pinyinIndex == pinyinName.length || pinyinName.indexOf(
+                    PinyinConverter.PINYIN_SPLITTER_CHAR,
+                    pinyinIndex
+                ) == -1
+            ) {
+                // 完整匹配，有加分
+                matches * 1.5
+            } else {
+                matches
+            }
         }
     }
 

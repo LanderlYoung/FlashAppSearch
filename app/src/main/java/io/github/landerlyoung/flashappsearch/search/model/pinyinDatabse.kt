@@ -45,8 +45,8 @@ data class PinyinEntity(
 
 @Dao
 interface PinyinDao {
-    @Query("SELECT * from hanzi2pinyin where hanzi == :hanzi")
-    fun queryPinyin(hanzi: String): List<PinyinEntity>
+    @Query("SELECT pinyin from hanzi2pinyin where hanzi == :hanzi")
+    fun queryPinyin(hanzi: String): List<String>
 }
 
 @Database(
