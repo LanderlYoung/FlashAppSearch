@@ -2,8 +2,8 @@ package io.github.landerlyoung.flashappsearch
 
 import android.annotation.SuppressLint
 import android.app.Application
-import android.arch.core.executor.ArchTaskExecutor
-import android.arch.core.executor.TaskExecutor
+import androidx.arch.core.executor.ArchTaskExecutor
+import androidx.arch.core.executor.TaskExecutor
 import android.content.Context
 import android.os.AsyncTask
 import android.os.Handler

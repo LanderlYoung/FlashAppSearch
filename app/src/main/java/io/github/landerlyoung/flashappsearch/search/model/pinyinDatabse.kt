@@ -1,8 +1,8 @@
 package io.github.landerlyoung.flashappsearch.search.model
 
-import android.arch.persistence.room.*
+import androidx.room.*
 import android.content.Context
-import android.support.annotation.WorkerThread
+import androidx.annotation.WorkerThread
 
 /**
  * <pre>

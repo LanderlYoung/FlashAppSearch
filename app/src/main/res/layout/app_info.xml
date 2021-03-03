@@ -5,7 +5,7 @@
         xmlns:tools="http://schemas.android.com/tools"
     >
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="74dp"
         android:layout_height="wrap_content"
         android:paddingTop="8dp"
@@ -46,7 +46,7 @@
             tools:text="应用搜索-搜索搜索"
             />
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
 </layout>

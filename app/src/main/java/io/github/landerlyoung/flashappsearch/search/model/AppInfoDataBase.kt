@@ -1,15 +1,15 @@
 package io.github.landerlyoung.flashappsearch.search.model
 
-import android.arch.persistence.room.Dao
-import android.arch.persistence.room.Database
-import android.arch.persistence.room.Delete
-import android.arch.persistence.room.Entity
-import android.arch.persistence.room.Insert
-import android.arch.persistence.room.OnConflictStrategy
-import android.arch.persistence.room.PrimaryKey
-import android.arch.persistence.room.Query
-import android.arch.persistence.room.Room
-import android.arch.persistence.room.RoomDatabase
+import androidx.room.Dao
+import androidx.room.Database
+import androidx.room.Delete
+import androidx.room.Entity
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.PrimaryKey
+import androidx.room.Query
+import androidx.room.Room
+import androidx.room.RoomDatabase
 import android.content.Context
 
 /*

@@ -1,6 +1,6 @@
 package io.github.landerlyoung.flashappsearch.search.repo
 
-import android.support.annotation.WorkerThread
+import androidx.annotation.WorkerThread
 import android.util.Log
 import android.util.LruCache
 import io.github.landerlyoung.flashappsearch.App

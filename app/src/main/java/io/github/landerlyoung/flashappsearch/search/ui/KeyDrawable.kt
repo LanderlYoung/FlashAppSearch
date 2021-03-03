@@ -83,7 +83,7 @@ class KeyDrawable(_input: Input? = null) : Drawable() {
             val fTextWidth = paint.measureText(firstLevel)
             val fX = (width - fTextWidth) / 2
             val fY = spacing + (firstLevelSize - paint.ascent()) / 2
-            canvas.drawText(firstLevel, fX, fY, paint)
+            canvas.drawText(firstLevel!!, fX, fY, paint)
             if (drawBaseLine) {
                 canvas.drawLine(0f, fY, width.toFloat(), fY, paint)
             }
@@ -94,7 +94,7 @@ class KeyDrawable(_input: Input? = null) : Drawable() {
                 val sTextWidth = paint.measureText(secondLevel)
                 val sX = (width - sTextWidth) / 2
                 val sY = spacing + firstLevelSize + spacing + (secondLevelSize - paint.ascent()) / 2
-                canvas.drawText(secondLevel, sX, sY, paint)
+                canvas.drawText(secondLevel!!, sX, sY, paint)
                 if (drawBaseLine) {
                     canvas.drawLine(0f, sY, width.toFloat(), sY, paint)
                 }
