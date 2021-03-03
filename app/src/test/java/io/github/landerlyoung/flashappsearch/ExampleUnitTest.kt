@@ -3,6 +3,7 @@ package io.github.landerlyoung.flashappsearch
 import io.github.landerlyoung.flashappsearch.search.model.T9
 import io.github.landerlyoung.flashappsearch.search.repo.AppNameRepo
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
@@ -19,6 +20,8 @@ class ExampleUnitTest {
 
     @Test
     fun testNameMatch() {
-        AppNameRepo.calculateMatchResult(listOf(T9.k9, T9.k3, T9.k4), "weixin")
+        val s0 = AppNameRepo.calculateMatchResult(listOf(T9.k9, T9.k4, T9.k2, T9.k6), "xiangji")
+        val s1 = AppNameRepo.calculateMatchResult(listOf(T9.k9, T9.k4, T9.k2, T9.k6), "xiachufang")
+        assertTrue(s0 > s1)
     }
 }

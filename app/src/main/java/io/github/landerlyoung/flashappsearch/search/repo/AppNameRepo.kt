@@ -39,28 +39,31 @@ object AppNameRepo {
         time("appNamePinyinMapper") {
             val appInfoDao = AppInfoDataBase.createDb(context).appInfoDao()
             val allDbInfo = time("allDbInfo") {
-                appInfoDao.allAppInfo().fold(HashMap<String, AppInfoEntity>()) { acc, appInfoEntity ->
-                    acc[appInfoEntity.packageName] = appInfoEntity
-                    acc
-                }
+                appInfoDao.allAppInfo()
+                    .fold(HashMap<String, AppInfoEntity>()) { acc, appInfoEntity ->
+                        acc[appInfoEntity.packageName] = appInfoEntity
+                        acc
+                    }
             }
 
             val pm = context.packageManager
             val allPackages = time("allPackages") {
-                pm.getInstalledPackages(0).fold(HashMap<String, PackageInfo>()) { acc, packageInfo ->
-                    acc[packageInfo.packageName] = packageInfo
-                    acc
-                }
+                pm.getInstalledPackages(0)
+                    .fold(HashMap<String, PackageInfo>()) { acc, packageInfo ->
+                        acc[packageInfo.packageName] = packageInfo
+                        acc
+                    }
             }
 
             val dbAppNames = allDbInfo.values.fold(HashSet<Pair<String, Long>>()) { acc, entity ->
                 acc.add(entity.packageName to entity.lastUpdated)
                 acc
             }
-            val appNames = allPackages.values.fold(HashSet<Pair<String, Long>>()) { acc, packageInfo ->
-                acc.add(packageInfo.packageName to packageInfo.lastUpdateTime)
-                acc
-            }
+            val appNames =
+                allPackages.values.fold(HashSet<Pair<String, Long>>()) { acc, packageInfo ->
+                    acc.add(packageInfo.packageName to packageInfo.lastUpdateTime)
+                    acc
+                }
 
             val intersect = dbAppNames.intersect(appNames)
             val delete = HashSet(dbAppNames).also { it.removeAll(intersect) }
@@ -77,7 +80,8 @@ object AppNameRepo {
 
             val newRecords = added.map {
                 val pkgInfo = allPackages[it.first]!!
-                val label = context.packageManager.getApplicationLabel(pkgInfo.applicationInfo).toString()
+                val label =
+                    context.packageManager.getApplicationLabel(pkgInfo.applicationInfo).toString()
 
                 val pinyin = if (pm.getLaunchIntentForPackage(pkgInfo.packageName) == null) {
                     null
@@ -117,52 +121,50 @@ object AppNameRepo {
         }
     }
 
+    private val fibos = DoubleArray(64)
+
+    init {
+        fibos[fibos.size - 1] = 1.toDouble()
+        fibos[fibos.size - 2] = 2.toDouble()
+        for (i in (0..fibos.size - 3).reversed()) {
+            fibos[i] = fibos[i + 1] + fibos[i + 2]
+        }
+    }
+
+    private fun indexMultiplier(index: Int): Double {
+        if (index >= fibos.size) return 0.1
+        return fibos[index]
+    }
+
     /**
      * calculate how good input matches pinyinName
      */
     internal fun calculateMatchResult(input: List<Input>, pinyinName: String): Double {
-        var score = 0.0
-        if (pinyinName.length > 2) {
-            var inputIndex = 0
-            var pinyinIndex = 1
-            var matches = 0.0
-            var lastUnMatch = 0
+        var inputIndex = 0
+        var pinyinIndex = 0
+        var matches = 0.0
 
-            fun indexMultiplier(index: Int): Double {
-                return 8.0 / (index + 4) + 1
+        while (inputIndex < input.size && pinyinIndex < pinyinName.length) {
+            if (pinyinName[pinyinIndex] in input[inputIndex].keySets) {
+                matches += indexMultiplier(pinyinIndex) + indexMultiplier(inputIndex)
+                inputIndex++
             }
-
-            while (inputIndex < input.size && pinyinIndex < pinyinName.length) {
-                if (pinyinName[pinyinIndex] in input[inputIndex].keySets) {
-                    inputIndex++
-                    pinyinIndex++
-                    matches += indexMultiplier(pinyinIndex)
-                } else {
-                    if (pinyinName[lastUnMatch] == PinyinConverter.PINYIN_SPLITTER_CHAR
-                        && pinyinName[pinyinIndex] == PinyinConverter.PINYIN_SPLITTER_CHAR
-                    ) {
-                        // last whole pinyin char is matched
-                        val len = pinyinIndex - lastUnMatch - 1
-                        matches += indexMultiplier(lastUnMatch + 1) * len
-                    }
-                    lastUnMatch = pinyinIndex
-                    pinyinIndex++
-                }
-            }
-
-            score = if (inputIndex < input.size && pinyinIndex == pinyinName.length) {
-                // exhausted
-                0.0
-            } else {
-                matches * 100 / pinyinName.length
-            }
+            pinyinIndex++
         }
-        return score
+
+        return if (inputIndex < input.size && pinyinIndex == pinyinName.length) {
+            // exhausted
+            0.0
+        } else {
+            matches * 100 / pinyinName.length
+        }
     }
 
     private var lastSearchInputs: List<Input>? = null
+
     // package -> name -> score
-    private var lastSearchResult: Sequence<Triple<String, Pair<CharSequence, String>, Double>>? = null
+    private var lastSearchResult: Sequence<Triple<String, Pair<CharSequence, String>, Double>>? =
+        null
 
     private fun <T> List<T>.startWith(other: List<T>): Boolean {
         val len = size
@@ -184,7 +186,7 @@ object AppNameRepo {
      */
     @SuppressLint("RestrictedApi")
     fun allApps(): LiveData<List<Pair<String, CharSequence>>> {
-        return object:ComputableLiveData<List<Pair<String, CharSequence>>>() {
+        return object : ComputableLiveData<List<Pair<String, CharSequence>>>() {
             override fun compute(): List<Pair<String, CharSequence>> {
                 return appNamePinyinMapper.entries
                     .map { it.key to it.value.first }

@@ -1,5 +1,6 @@
 package io.github.landerlyoung.flashappsearch.search.ui
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.text.SpannableStringBuilder
 import android.text.style.ImageSpan
@@ -130,23 +131,28 @@ class AppSearchActivity : AppCompatActivity() {
     private inner class Adapter : RecyclerView.Adapter<VH>() {
         private var data: List<Pair<String, CharSequence>> = listOf()
 
+        @SuppressLint("NotifyDataSetChanged")
         fun setData(list: List<Pair<String, CharSequence>>) {
             val oldList = data
             val newList = list
             data = newList
 
-            DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+            if (!useAnimation) {
+                notifyDataSetChanged()
+            } else {
+                DiffUtil.calculateDiff(object : DiffUtil.Callback() {
 
-                override fun getOldListSize() = oldList.size
+                    override fun getOldListSize() = oldList.size
 
-                override fun getNewListSize() = newList.size
+                    override fun getNewListSize() = newList.size
 
-                override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) =
-                    oldList[oldItemPosition].first == newList[newItemPosition].first
+                    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) =
+                        oldList[oldItemPosition].first == newList[newItemPosition].first
 
-                override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int) =
-                    oldList[oldItemPosition].first == newList[newItemPosition].first
-            }).dispatchUpdatesTo(this)
+                    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int) =
+                        oldList[oldItemPosition].first == newList[newItemPosition].first
+                }).dispatchUpdatesTo(this)
+            }
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
