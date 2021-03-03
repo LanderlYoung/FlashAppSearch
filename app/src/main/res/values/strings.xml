@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">Flash App Search</string>
+    <string name="app_name" translatable="false">Flash App Search</string>
+    <string name="all_apps_label">All apps</string>
+    <string name="search_apps">Search apps</string>
 </resources>

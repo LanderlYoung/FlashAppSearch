@@ -1,11 +1,11 @@
 package io.github.landerlyoung.flashappsearch.search.repo
 
 import android.annotation.SuppressLint
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.util.Log
+import androidx.lifecycle.ComputableLiveData
+import androidx.lifecycle.LiveData
 import io.github.landerlyoung.flashappsearch.App
 import io.github.landerlyoung.flashappsearch.BuildConfig
 import io.github.landerlyoung.flashappsearch.search.model.AppInfoDataBase
@@ -180,9 +180,22 @@ object AppNameRepo {
     }
 
     /**
+     * @return <package name, label>
+     */
+    @SuppressLint("RestrictedApi")
+    fun allApps(): LiveData<List<Pair<String, CharSequence>>> {
+        return object:ComputableLiveData<List<Pair<String, CharSequence>>>() {
+            override fun compute(): List<Pair<String, CharSequence>> {
+                return appNamePinyinMapper.entries
+                    .map { it.key to it.value.first }
+            }
+        }.liveData
+    }
+
+    /**
      * @return <package, name, pinyin>
      */
-    fun getAllApps(keys: List<Input>): Sequence<Pair<String, Pair<CharSequence, String>>> =
+    private fun findApps(keys: List<Input>): Sequence<Pair<String, Pair<CharSequence, String>>> =
         synchronized(this) {
             if (lastSearchInputs != null && keys.startWith(lastSearchInputs!!)) {
                 Log.i(TAG, "getAllApps result from $keys")
@@ -195,48 +208,26 @@ object AppNameRepo {
             }
         }
 
+    /**
+     * @return <package name, label>
+     */
+    @SuppressLint("RestrictedApi")
     fun queryApp(keys: List<Input>): LiveData<List<Pair<String, CharSequence>>> {
-        return object : MutableLiveData<List<Pair<String, CharSequence>>>() {
-            @Volatile
-            private var isActive = false
-
-            override fun onActive() {
-                super.onActive()
-                Log.i(TAG, "active $keys")
-                isActive = true
-
-                App.executors().execute {
-                    try {
-                        postValue(compute())
-                    } catch (e: InterruptedException) {
-                        // bail out
-                    }
-                }
-            }
-
-            override fun onInactive() {
-                super.onInactive()
-                Log.i(TAG, "inActive $keys")
-//                isActive = false
-            }
-
-            fun ensureActive() {
-                if (!isActive) {
-                    throw InterruptedException()
-                }
-            }
-
-            fun compute(): List<Pair<String, CharSequence>> {
+        return object : ComputableLiveData<List<Pair<String, CharSequence>>>() {
+            override fun compute(): List<Pair<String, CharSequence>> {
                 if (keys.isEmpty()) {
                     return listOf()
                 }
                 return time("queryApp $keys") {
                     val result =
-                        getAllApps(keys).map {
-                            ensureActive()
-                            Triple(it.first, it.second, calculateMatchResult(keys, it.second.second))
+                        findApps(keys).map {
+                            Triple(
+                                it.first,
+                                it.second,
+                                calculateMatchResult(keys, it.second.second)
+                            )
                         }.filter {
-                            it.third > 0
+                            keys.isNotEmpty() && it.third > 0
                         }.sortedByDescending {
                             it.third
                         }
@@ -248,7 +239,6 @@ object AppNameRepo {
 
                     var count = 0
                     result.fold(mutableListOf()) { list, pkg ->
-                        ensureActive()
                         if (BuildConfig.DEBUG && count++ < 4) {
                             Log.i(TAG, pkg.toString())
                         }
@@ -257,6 +247,6 @@ object AppNameRepo {
                     }
                 }
             }
-        }
+        }.liveData
     }
 }

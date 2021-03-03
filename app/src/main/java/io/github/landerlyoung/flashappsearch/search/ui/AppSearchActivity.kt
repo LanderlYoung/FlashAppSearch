@@ -1,17 +1,16 @@
 package io.github.landerlyoung.flashappsearch.search.ui
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
-import androidx.lifecycle.Transformations
-import androidx.lifecycle.ViewModelProviders
-import androidx.databinding.DataBindingUtil
 import android.os.Bundle
 import android.text.SpannableStringBuilder
 import android.text.style.ImageSpan
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
@@ -20,6 +19,8 @@ import io.github.landerlyoung.flashappsearch.R
 import io.github.landerlyoung.flashappsearch.databinding.ActivityAppSearchBinding
 import io.github.landerlyoung.flashappsearch.databinding.AppInfoBinding
 import io.github.landerlyoung.flashappsearch.search.model.Input
+import io.github.landerlyoung.flashappsearch.search.utils.mapMulti
+import io.github.landerlyoung.flashappsearch.search.utils.switchMapMulti
 import io.github.landerlyoung.flashappsearch.search.vm.AppSearchViewModel
 
 class AppSearchActivity : AppCompatActivity() {
@@ -27,11 +28,7 @@ class AppSearchActivity : AppCompatActivity() {
     lateinit var viewModel: AppSearchViewModel
     private lateinit var adapter: Adapter
 
-    val searchInput: LiveData<CharSequence>
-        get() = _searchInput
-
-    private val _searchInput = MutableLiveData<CharSequence>()
-
+    lateinit var searchInput: LiveData<CharSequence?>
     private val useAnimation = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,19 +36,23 @@ class AppSearchActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this)[AppSearchViewModel::class.java]
 
         DataBindingUtil.setContentView<ActivityAppSearchBinding>(
-                this,
-                R.layout.activity_app_search
+            this,
+            R.layout.activity_app_search
         ).let {
             it.ui = this
-            it.setLifecycleOwner(this)
+            it.lifecycleOwner = this
             it.vm = viewModel
             initRecyclerView(it.appList)
         }
 
-        viewModel.input.observe(this, Observer {
-            _searchInput.value = makeInputs(it)
-        })
-        viewModel.resultApps.observe(this, Observer { it: List<Pair<String, CharSequence>>? ->
+        searchInput = mapMulti(viewModel.input, viewModel.showAllApps) {input, all->
+            if (all!!) {
+                getString(R.string.all_apps_label)
+            } else {
+                makeInputs(input)
+            }
+        }
+        viewModel.resultApps.observe(this, {
             adapter.setData(it ?: listOf())
         })
     }
@@ -74,10 +75,11 @@ class AppSearchActivity : AppCompatActivity() {
     }
 
     fun gotoSetting() {
-
+        // show all apps
+        viewModel.showAllApps.value = true
     }
 
-    fun key(key:Input) = KeyDrawable(key)
+    fun key(key: Input) = KeyDrawable(key)
 
     fun clear(): Boolean {
         viewModel.clear()
@@ -89,6 +91,9 @@ class AppSearchActivity : AppCompatActivity() {
         val lm = GridLayoutManager(this, 4)
         rv.layoutManager = lm
         rv.adapter = adapter
+        if (!useAnimation) {
+            rv.itemAnimator = null
+        }
     }
 
     private inner class VH(parent: ViewGroup) : RecyclerView.ViewHolder(
@@ -101,10 +106,10 @@ class AppSearchActivity : AppCompatActivity() {
         private val packageName = MutableLiveData<String>()
         private val appInfo = Transformations.switchMap(packageName) {
             viewModel.queryAppInfo(it)
-        }!!
+        }
 
         init {
-            appInfo.observe(this@AppSearchActivity, Observer {
+            appInfo.observe(this@AppSearchActivity, {
                 binding.appIcon.setImageDrawable(it)
             })
             itemView.setOnClickListener {
@@ -130,22 +135,18 @@ class AppSearchActivity : AppCompatActivity() {
             val newList = list
             data = newList
 
-            if (!useAnimation) {
-                notifyDataSetChanged()
-            } else {
-                DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+            DiffUtil.calculateDiff(object : DiffUtil.Callback() {
 
-                    override fun getOldListSize() = oldList.size
+                override fun getOldListSize() = oldList.size
 
-                    override fun getNewListSize() = newList.size
+                override fun getNewListSize() = newList.size
 
-                    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) =
-                            oldList[oldItemPosition].first == newList[newItemPosition].first
+                override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) =
+                    oldList[oldItemPosition].first == newList[newItemPosition].first
 
-                    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int) =
-                            oldList[oldItemPosition].first == newList[newItemPosition].first
-                }).dispatchUpdatesTo(this)
-            }
+                override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int) =
+                    oldList[oldItemPosition].first == newList[newItemPosition].first
+            }).dispatchUpdatesTo(this)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {

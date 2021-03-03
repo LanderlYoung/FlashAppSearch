@@ -18,7 +18,7 @@ data class Input(val keys: List<Char>) {
 
     companion object {
         @JvmField
-        val emptyInput = Input("")
+        val emptyInput = Input("#")
     }
 }
 

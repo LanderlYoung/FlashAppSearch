@@ -2,16 +2,15 @@ package io.github.landerlyoung.flashappsearch.search.vm
 
 import android.annotation.SuppressLint
 import android.app.Application
+import android.graphics.drawable.Drawable
+import android.util.LruCache
+import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
-import android.graphics.drawable.Drawable
-import android.os.AsyncTask
-import android.util.LruCache
-import androidx.arch.core.executor.ArchTaskExecutor
 import io.github.landerlyoung.flashappsearch.search.model.Input
 import io.github.landerlyoung.flashappsearch.search.repo.AppNameRepo
+import io.github.landerlyoung.flashappsearch.search.utils.switchMapMulti
 
 /**
  * <pre>
@@ -26,12 +25,20 @@ class AppSearchViewModel(app: Application) : AndroidViewModel(app) {
 
     private val _input = MutableLiveData<MutableList<Input>>()
 
+    @Suppress("UNCHECKED_CAST")
     val input: LiveData<List<Input>>
         get() = _input as LiveData<List<Input>>
 
-    val resultApps = Transformations.switchMap(_input) {
-        AppNameRepo.queryApp(it)
-    }!!
+    val showAllApps = MutableLiveData(false)
+
+    val resultApps = switchMapMulti(showAllApps, _input) { show, input ->
+        if (show!!) {
+            AppNameRepo.allApps()
+        } else {
+            AppNameRepo.queryApp(input!!)
+        }
+    }
+
 
     init {
         AppNameRepo.quickInit(app)
@@ -39,6 +46,7 @@ class AppSearchViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun input(key: Input) {
+        showAllApps.value = false
         _input.value?.let {
             it.add(key)
             _input.value = it
@@ -46,6 +54,7 @@ class AppSearchViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun backspace() {
+        showAllApps.value = false
         _input.value?.let {
             if (it.isNotEmpty()) {
                 it.removeAt(it.size - 1)
@@ -55,19 +64,16 @@ class AppSearchViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun clear() {
+        showAllApps.value = false
         _input.value?.let {
             it.clear()
             _input.value = it
         }
     }
 
-    private fun fetchAppInfo(key: String): Drawable? {
+    private fun fetchAppInfo(key: String): Drawable {
         val packageManager = getApplication<Application>().packageManager
-        val info = packageManager.getApplicationInfo(key, 0)
-        return info?.let {
-            packageManager.getApplicationIcon(key)
-
-        }
+        return packageManager.getApplicationIcon(key)
     }
 
     @SuppressLint("RestrictedApi")
