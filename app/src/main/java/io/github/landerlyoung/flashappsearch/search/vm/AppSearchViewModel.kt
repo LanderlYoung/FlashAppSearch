@@ -9,6 +9,7 @@ import androidx.lifecycle.Transformations
 import android.graphics.drawable.Drawable
 import android.os.AsyncTask
 import android.util.LruCache
+import androidx.arch.core.executor.ArchTaskExecutor
 import io.github.landerlyoung.flashappsearch.search.model.Input
 import io.github.landerlyoung.flashappsearch.search.repo.AppNameRepo
 
@@ -76,7 +77,7 @@ class AppSearchViewModel(app: Application) : AndroidViewModel(app) {
         if (data != null) {
             result.value = data
         } else {
-            AsyncTask.SERIAL_EXECUTOR.execute {
+            ArchTaskExecutor.getIOThreadExecutor().execute {
                 val info = fetchAppInfo(packageName)
                 appInfoCache.put(packageName, info)
                 result.postValue(info)

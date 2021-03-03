@@ -12,6 +12,7 @@ import android.text.style.ImageSpan
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -35,7 +36,7 @@ class AppSearchActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProviders.of(this)[AppSearchViewModel::class.java]
+        viewModel = ViewModelProvider(this)[AppSearchViewModel::class.java]
 
         DataBindingUtil.setContentView<ActivityAppSearchBinding>(
                 this,

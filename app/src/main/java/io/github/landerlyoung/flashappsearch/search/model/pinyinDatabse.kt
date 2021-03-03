@@ -1,8 +1,16 @@
 package io.github.landerlyoung.flashappsearch.search.model
 
-import androidx.room.*
 import android.content.Context
 import androidx.annotation.WorkerThread
+import androidx.room.ColumnInfo
+import androidx.room.Dao
+import androidx.room.Database
+import androidx.room.Entity
+import androidx.room.Index
+import androidx.room.PrimaryKey
+import androidx.room.Query
+import androidx.room.Room
+import androidx.room.RoomDatabase
 
 /**
  * <pre>
@@ -24,12 +32,16 @@ import androidx.annotation.WorkerThread
  * );
  * ```
  */
-@Entity(tableName = "hanzi2pinyin")
-data class PinyinEntity(val hanzi: String, val pinyin: String) {
+@Entity(
+    tableName = "hanzi2pinyin",
+    indices = [Index(name = "hanzi_index", value = ["hanzi"])]
+)
+data class PinyinEntity(
     @PrimaryKey
-    @ColumnInfo()
-    var id: Int = 0
-}
+    var id: Int = 0,
+    val hanzi: String,
+    val pinyin: String
+)
 
 @Dao
 interface PinyinDao {
@@ -50,7 +62,7 @@ abstract class PinyinDataBase : RoomDatabase() {
         @WorkerThread
         fun createDb(context: Context): PinyinDataBase {
             val packageUpdateTime = context.packageManager.getPackageInfo(context.packageName, 0).lastUpdateTime
-            val pinyinFile = context.getDatabasePath(PinyinDataBase.DB_NAME)
+            val pinyinFile = context.getDatabasePath(DB_NAME)
             if (!pinyinFile.exists() || pinyinFile.lastModified() < packageUpdateTime) {
                 pinyinFile.delete()
                 // copy asset to file
