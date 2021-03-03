@@ -10,6 +10,7 @@ import android.text.style.ImageSpan
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -82,7 +83,8 @@ class AppSearchActivity : AppCompatActivity() {
         viewModel.showAllApps.value = true
     }
 
-    fun key(key: Input) = KeyDrawable(key)
+    fun key(key: Input) =
+        KeyDrawable(key, ActivityCompat.getColor(this, R.color.keyTextColor))
 
     fun clear(): Boolean {
         viewModel.clear()

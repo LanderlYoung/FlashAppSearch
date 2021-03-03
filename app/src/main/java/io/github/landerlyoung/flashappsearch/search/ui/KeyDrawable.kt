@@ -1,15 +1,16 @@
 package io.github.landerlyoung.flashappsearch.search.ui
 
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.ColorFilter
 import android.graphics.Paint
 import android.graphics.PixelFormat
 import android.graphics.Rect
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
+import androidx.annotation.ColorInt
 import io.github.landerlyoung.flashappsearch.search.model.Input
 import kotlin.math.min
+
 
 /**
  * <pre>
@@ -19,7 +20,10 @@ import kotlin.math.min
  * Life with Passion, Code with Creativity.
  * </pre>
  */
-class KeyDrawable(_input: Input? = null) : Drawable() {
+class KeyDrawable(
+    _input: Input? = null, @ColorInt
+    val textColor: Int
+) : Drawable() {
     var input: Input? = null
         set(value) {
             field = value
@@ -36,6 +40,10 @@ class KeyDrawable(_input: Input? = null) : Drawable() {
                 secondLevel = null
             }
         }
+
+    @ColorInt
+    private val secondLevelColor: Int =
+        (textColor and 0x00FFFFFF) or 0xAA000000.toInt()
 
     init {
         input = _input
@@ -54,9 +62,6 @@ class KeyDrawable(_input: Input? = null) : Drawable() {
     private var secondLevel: String? = null
     private var firstLevelSize = 0f
     private var secondLevelSize = 0f
-
-    var firstLevelColor: Int = Color.BLACK
-    val secondLevelColor: Int = 0xAA000000.toInt()
 
     private fun updateTextSize() {
         val bounds = bounds
@@ -78,7 +83,7 @@ class KeyDrawable(_input: Input? = null) : Drawable() {
         if (firstLevel != null) {
             val spacing = height.toFloat() / 10
 
-            paint.color = firstLevelColor
+            paint.color = textColor
             paint.textSize = firstLevelSize
             val fTextWidth = paint.measureText(firstLevel)
             val fX = (width - fTextWidth) / 2
