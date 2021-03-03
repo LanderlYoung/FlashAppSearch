@@ -1,7 +1,10 @@
 package io.github.landerlyoung.flashappsearch.search.ui
 
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.text.SpannableStringBuilder
 import android.text.style.ImageSpan
 import android.view.LayoutInflater
@@ -21,6 +24,7 @@ import io.github.landerlyoung.flashappsearch.databinding.AppInfoBinding
 import io.github.landerlyoung.flashappsearch.search.model.Input
 import io.github.landerlyoung.flashappsearch.search.utils.mapMulti
 import io.github.landerlyoung.flashappsearch.search.vm.AppSearchViewModel
+
 
 class AppSearchActivity : AppCompatActivity() {
 
@@ -117,6 +121,15 @@ class AppSearchActivity : AppCompatActivity() {
                         startActivity(it)
                     }
                 }
+            }
+            itemView.setOnLongClickListener {
+                packageName.value?.let {
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                    val uri: Uri = Uri.fromParts("package", it, null)
+                    intent.data = uri
+                    startActivity(intent)
+                    true
+                } ?: false
             }
         }
 
