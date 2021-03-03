@@ -1,5 +1,6 @@
 package io.github.landerlyoung.flashappsearch.search.widget
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
@@ -19,20 +20,20 @@ import io.github.landerlyoung.flashappsearch.search.ui.AppSearchActivity
  * </pre>
  */
 class AppSearchWidgetProvider : AppWidgetProvider() {
+    @SuppressLint("InlinedApi")
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
         super.onUpdate(context, appWidgetManager, appWidgetIds)
-        for (i in 0 until appWidgetIds.size) {
-            val appWidgetId = appWidgetIds[i]
-
+        for (element in appWidgetIds) {
             val intent = Intent(context, AppSearchActivity::class.java)
-            val pendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
+            val pendingIntent = PendingIntent.getActivity(context, 0, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
             // to the button
             val views = RemoteViews(context.packageName, R.layout.search_widget_layout)
             views.setOnClickPendingIntent(R.id.search_widget, pendingIntent)
 
             // Tell the AppWidgetManager to perform an update on the current app widget
-            appWidgetManager.updateAppWidget(appWidgetId, views)
+            appWidgetManager.updateAppWidget(element, views)
         }
     }
 }

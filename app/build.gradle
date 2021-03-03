@@ -5,6 +5,7 @@ apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 30
+
     defaultConfig {
         applicationId "io.github.landerlyoung.flashappsearch"
         minSdkVersion 21
@@ -12,16 +13,38 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+        resConfigs 'en', 'zh', 'zh-rCN'
     }
+
+    buildFeatures {
+        dataBinding = true
+    }
+
+    signingConfigs {
+        debug {
+            storeFile rootProject.file('tools/debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+    }
+
     buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+        }
+
         release {
-            minifyEnabled false
+            signingConfig signingConfigs.debug
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 
-    buildFeatures{
-        dataBinding = true
+    packagingOptions {
+        exclude ("META-INF/**.version")
+        exclude ("META-INF/**.kotlin_module")
+        exclude ("**.kotlin_builtins")
     }
 }
 
