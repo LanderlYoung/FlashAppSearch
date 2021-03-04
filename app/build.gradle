@@ -1,7 +1,8 @@
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-//apply plugin: 'kotlin-android-extensions'
-apply plugin: 'kotlin-kapt'
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+}
 
 android {
     compileSdkVersion 30
@@ -16,8 +17,17 @@ android {
         resConfigs 'en', 'zh', 'zh-rCN'
     }
 
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+
     buildFeatures {
-        dataBinding = true
+        dataBinding true
+        compose true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion compose_version
     }
 
     signingConfigs {
@@ -56,6 +66,16 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.room:room-runtime:2.2.6'
     kapt 'androidx.room:room-compiler:2.2.6'
+
+    // compose
+    implementation "androidx.compose.ui:ui:$compose_version"
+    implementation "androidx.compose.material:material:$compose_version"
+    implementation "androidx.compose.material:material-icons-extended:$compose_version"
+    implementation "androidx.compose.ui:ui-tooling:$compose_version"
+
+    // https://mvnrepository.com/artifact/androidx.ui/ui-livedata
+    implementation 'androidx.ui:ui-livedata:0.1.0-dev11'
+
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'

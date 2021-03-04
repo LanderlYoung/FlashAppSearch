@@ -43,6 +43,8 @@ object T9 {
     val k8 = Input("8TUV")
     @JvmField
     val k9 = Input("9WXYZ")
+    @JvmField
+    val kHash = Input.emptyInput
 
     @JvmField
     val kDelete = Input("\u232b") // ⌫
