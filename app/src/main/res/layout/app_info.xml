@@ -7,7 +7,8 @@
       android:layout_width="74dp"
       android:layout_height="wrap_content"
       android:paddingTop="8dp"
-      android:paddingBottom="8dp">
+      android:paddingBottom="8dp"
+      android:background="@drawable/ripple_background">
 
         <ImageView
           android:id="@+id/app_icon"
