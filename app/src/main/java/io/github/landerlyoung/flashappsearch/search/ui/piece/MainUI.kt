@@ -1,12 +1,12 @@
 package io.github.landerlyoung.flashappsearch.search.ui.piece
 
 import android.content.Intent
-import android.media.audiofx.BassBoost
 import android.net.Uri
 import android.provider.Settings
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,10 +21,11 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import com.example.androiddevchallenge.ui.piece.AppList
 import com.example.androiddevchallenge.ui.piece.KeyPadT9
 import com.example.androiddevchallenge.ui.piece.SearchBar
+import dev.chrisbanes.accompanist.insets.navigationBarsPadding
+import dev.chrisbanes.accompanist.insets.statusBarsPadding
 import io.github.landerlyoung.flashappsearch.search.model.Input
 import io.github.landerlyoung.flashappsearch.search.ui.AppIconFetcher
 import io.github.landerlyoung.flashappsearch.search.vm.AppSearchViewModel
-import java.nio.channels.spi.SelectorProvider
 
 /*
  * ```
@@ -50,14 +51,18 @@ fun FlashAppSearch(vm: AppSearchViewModel, modifier: Modifier = Modifier) {
         inputs = list
     }
 
-    Scaffold(topBar = {
-        SearchBar(
-            showAllApps = showAllApp,
-            inputs = inputs ?: emptyList(),
-            onClickShowAll = { vm.showAllApps.value = true })
-
-    }) {
-        Column(modifier = modifier) {
+    Scaffold(
+        topBar = {
+            SearchBar(
+                showAllApps = showAllApp,
+                inputs = inputs ?: emptyList(),
+                onClickShowAll = { vm.showAllApps.value = true })
+        },
+        modifier = Modifier
+            .statusBarsPadding()
+            .navigationBarsPadding()
+    ) { innerPadding ->
+        Column(modifier = Modifier.padding(innerPadding)) {
             AppList(
                 appPackageNames = appList ?: emptyList(),
                 iconFetcher = iconFetcher,

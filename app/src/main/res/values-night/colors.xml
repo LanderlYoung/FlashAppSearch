@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <color name="windowBackground">#DD000000</color>
-    <color name="searchAreaBackground">#22FFFFFF</color>
-    <color name="keyTextColor">@android:color/white</color>
-    <color name="rippleColor">#88FFFFFF</color>
-    <color name="rippleMaskColor">#55FFFFFF</color>
-</resources>

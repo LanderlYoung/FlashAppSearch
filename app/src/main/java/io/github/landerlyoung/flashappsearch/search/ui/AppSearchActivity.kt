@@ -4,10 +4,10 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
-import androidx.compose.ui.Modifier
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.ViewModelProvider
+import dev.chrisbanes.accompanist.insets.ProvideWindowInsets
 import io.github.landerlyoung.flashappsearch.search.ui.piece.FlashAppSearch
 import io.github.landerlyoung.flashappsearch.search.vm.AppSearchViewModel
 
@@ -20,9 +20,14 @@ class AppSearchActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProvider(this)[AppSearchViewModel::class.java]
 
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
-            MaterialTheme() {
-                    FlashAppSearch(vm = viewModel, modifier = Modifier.fillMaxSize())
+            MaterialTheme {
+                ProvideWindowInsets {
+                    FlashAppSearch(
+                        vm = viewModel
+                    )
+                }
             }
         }
     }

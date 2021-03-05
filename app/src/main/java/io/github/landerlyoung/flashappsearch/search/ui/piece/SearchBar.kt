@@ -1,6 +1,5 @@
 package com.example.androiddevchallenge.ui.piece
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -22,8 +21,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import io.github.landerlyoung.flashappsearch.R
 import io.github.landerlyoung.flashappsearch.search.model.Input
 import io.github.landerlyoung.flashappsearch.search.model.T9
@@ -58,14 +59,14 @@ fun SearchBar(
                 }.copy(alpha = 0.2f), RoundedCornerShape(16.dp)
             ),
     ) {
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(12.dp))
         when {
             showAllApps || inputs.isEmpty() -> {
                 Text(
-                    text =
-                    if (showAllApps) "全部显示" else "搜索应用",
-                    modifier = Modifier
-                        .weight(1f)
+                    text = if (showAllApps) stringResource(R.string.all_apps_label)
+                    else stringResource(id = R.string.search_apps),
+                    modifier = Modifier.weight(1f),
+                    fontSize = 22.sp
                 )
             }
             else -> {
@@ -95,7 +96,7 @@ fun SearchBar(
             modifier =
             Modifier
                 .size(44.dp, 44.dp)
-                .padding(4.dp)
+                .padding(8.dp)
                 .clickable(onClick = onClickShowAll)
         )
         Spacer(modifier = Modifier.width(4.dp))
