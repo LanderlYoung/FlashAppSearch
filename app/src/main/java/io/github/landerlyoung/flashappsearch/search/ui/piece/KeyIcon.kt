@@ -73,7 +73,7 @@ fun KeyIcon(
             fontSize = LocalDensity.current.run {
                 secondLevelSize.toSp()
             },
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+            modifier = Modifier.align(Alignment.CenterHorizontally),
         )
 
         Spacer(Modifier.weight(1f))

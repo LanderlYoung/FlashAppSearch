@@ -42,6 +42,7 @@ val keyColor: Color
 @Composable
 fun KeyPadT9(
     onKey: (Input) -> Unit,
+    onBackspace: () -> Unit,
     onClear: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -78,7 +79,7 @@ fun KeyPadT9(
             Spacer(Modifier.weight(1f))
             KeyIcon(key = T9.kDelete, color = keyColor, size.combinedClickable(
                 onClick = {
-                    onKey(T9.kDelete)
+                    onBackspace()
                 },
                 onLongClick = {
                     onClear()
@@ -120,6 +121,6 @@ private fun KeyPadRow(
 @ExperimentalFoundationApi
 private fun previewKeypadT9() {
     MaterialTheme {
-        KeyPadT9(onKey = { }, onClear = { }, modifier = Modifier.fillMaxSize())
+        KeyPadT9(onKey = { },onBackspace = {}, onClear = { }, modifier = Modifier.fillMaxSize())
     }
 }

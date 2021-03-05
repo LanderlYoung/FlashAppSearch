@@ -1,5 +1,6 @@
 package com.example.androiddevchallenge.ui.piece
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -47,14 +48,14 @@ fun SearchBar(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .height(48.dp)
+            .height(64.dp)
             .padding(8.dp)
             .background(
                 if (isSystemInDarkTheme()) {
                     Color.White
                 } else {
                     Color.Black
-                }.copy(alpha = 0.2f), RoundedCornerShape(6.dp)
+                }.copy(alpha = 0.2f), RoundedCornerShape(16.dp)
             ),
     ) {
         Spacer(modifier = Modifier.width(8.dp))
@@ -75,11 +76,12 @@ fun SearchBar(
                 ) {
                     val size = Modifier
                         .fillMaxHeight()
-                        .aspectRatio(0.5f, true)
+                        .aspectRatio(0.7f, true)
                         .padding(0.dp, 2.dp)
                     inputs.forEach { key ->
                         KeyIcon(
-                            key = key, color = keyColor,
+                            key = key,
+                            color = keyColor,
                             modifier = size
                         )
                     }
@@ -88,7 +90,7 @@ fun SearchBar(
         }
         Spacer(modifier = Modifier.width(8.dp))
         Icon(
-            painter = painterResource(R.drawable.ic_settings),
+            painter = painterResource(R.drawable.ic_apps),
             contentDescription = null,
             modifier =
             Modifier
