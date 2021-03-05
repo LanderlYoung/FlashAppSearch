@@ -2,13 +2,11 @@ package io.github.landerlyoung.flashappsearch
 
 import android.annotation.SuppressLint
 import android.app.Application
-import androidx.arch.core.executor.ArchTaskExecutor
-import androidx.arch.core.executor.TaskExecutor
 import android.content.Context
-import android.os.AsyncTask
 import android.os.Handler
 import android.os.Looper
-import java.util.concurrent.Executors
+import androidx.arch.core.executor.ArchTaskExecutor
+import androidx.arch.core.executor.TaskExecutor
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
@@ -49,21 +47,21 @@ class App : Application() {
     }
 
     companion object {
-        private val _executors = ThreadPoolExecutor(
+        private val executors = ThreadPoolExecutor(
             4, 4, 1, TimeUnit.MINUTES, LinkedBlockingDeque()
         ).apply {
             allowCoreThreadTimeOut(true)
         }
 
-        private val _serial = ThreadPoolExecutor(
+        private val serial = ThreadPoolExecutor(
             1, 1, 1, TimeUnit.MINUTES, LinkedBlockingDeque()
         ).apply {
             allowCoreThreadTimeOut(true)
         }
 
-        fun executors() = _executors
+        fun executors() = executors
 
-        fun serialExecutors() = _serial
+        fun serialExecutors() = serial
 
         lateinit var app: App
             private set

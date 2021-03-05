@@ -21,8 +21,6 @@ import io.github.landerlyoung.flashappsearch.search.utils.switchMapMulti
  * </pre>
  */
 class AppSearchViewModel(app: Application) : AndroidViewModel(app) {
-    private val appInfoCache = LruCache<String, Drawable?>(20)
-
     private val _input = MutableLiveData<MutableList<Input>>()
 
     @Suppress("UNCHECKED_CAST")
@@ -58,8 +56,8 @@ class AppSearchViewModel(app: Application) : AndroidViewModel(app) {
         _input.value?.let {
             if (it.isNotEmpty()) {
                 it.removeAt(it.size - 1)
+                _input.value = it
             }
-            _input.value = it
         }
     }
 
@@ -69,26 +67,5 @@ class AppSearchViewModel(app: Application) : AndroidViewModel(app) {
             it.clear()
             _input.value = it
         }
-    }
-
-    private fun fetchAppInfo(key: String): Drawable {
-        val packageManager = getApplication<Application>().packageManager
-        return packageManager.getApplicationIcon(key)
-    }
-
-    @SuppressLint("RestrictedApi")
-    fun queryAppIcon(packageName: String): LiveData<Drawable?> {
-        val result = MutableLiveData<Drawable?>()
-        val data = appInfoCache[packageName]
-        if (data != null) {
-            result.value = data
-        } else {
-            ArchTaskExecutor.getIOThreadExecutor().execute {
-                val info = fetchAppInfo(packageName)
-                appInfoCache.put(packageName, info)
-                result.postValue(info)
-            }
-        }
-        return result
     }
 }
