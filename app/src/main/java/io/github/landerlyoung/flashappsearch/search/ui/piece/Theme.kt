@@ -1,0 +1,35 @@
+package io.github.landerlyoung.flashappsearch.search.ui.piece
+
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.darkColors
+import androidx.compose.material.lightColors
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+
+/*
+ * ```
+ * Author: taylorcyang@tencent.com
+ * Date:   2021-03-05
+ * Time:   15:43
+ * Life with Passion, Code with Creativity.
+ * ```
+ */
+
+
+private val LightColors = lightColors(
+    primaryVariant = Color.Transparent
+)
+
+private val DarkColors = darkColors(
+    background = Color.Transparent
+)
+
+@Composable
+fun Theme(content: @Composable () -> Unit) {
+    MaterialTheme(
+        colors = if (isSystemInDarkTheme()) DarkColors else LightColors
+    ) {
+        content()
+    }
+}
