@@ -4,15 +4,13 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.LocalContentColor
 import androidx.compose.material.Scaffold
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -22,6 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.unit.dp
 import com.example.androiddevchallenge.ui.piece.AppList
 import com.example.androiddevchallenge.ui.piece.KeyPadT9
 import com.example.androiddevchallenge.ui.piece.SearchBar
@@ -86,6 +85,7 @@ fun FlashAppSearch(vm: AppSearchViewModel, modifier: Modifier = Modifier) {
                 }
             )
 
+            Spacer(modifier = Modifier.height(4.dp))
             KeyPadT9(
                 onKey = { vm.input(it) },
                 onClear = { vm.clear() },
