@@ -21,7 +21,7 @@ import androidx.compose.ui.graphics.Color
 
 
 private val LightColors = lightColors(
-    primaryVariant = Color.Transparent
+    background = Color.Transparent
 )
 
 private val DarkColors = darkColors(
