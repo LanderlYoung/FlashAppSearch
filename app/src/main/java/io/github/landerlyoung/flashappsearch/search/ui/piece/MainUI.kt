@@ -41,14 +41,14 @@ import io.github.landerlyoung.flashappsearch.search.vm.AppSearchViewModel
 
 @ExperimentalFoundationApi
 @Composable
-fun FlashAppSearch(vm: AppSearchViewModel, modifier: Modifier = Modifier) {
+fun FlashAppSearch(vm: AppSearchViewModel) {
     val context = LocalContext.current
     val iconFetcher = remember { AppIconFetcher(context) }
 
     val showAllApp by vm.showAllApps.observeAsState(initial = false)
     val appList by vm.resultApps.observeAsState()
 
-//    val inputs by vm.input.observeAsState()
+    // val inputs by vm.input.observeAsState()
     var inputs by remember { mutableStateOf<List<Input>?>(null, neverEqualPolicy()) }
     vm.input.observe(LocalLifecycleOwner.current) { list ->
         inputs = list
