@@ -21,9 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
-import com.example.androiddevchallenge.ui.piece.AppList
-import com.example.androiddevchallenge.ui.piece.KeyPadT9
-import com.example.androiddevchallenge.ui.piece.SearchBar
 import dev.chrisbanes.accompanist.insets.navigationBarsPadding
 import dev.chrisbanes.accompanist.insets.statusBarsPadding
 import io.github.landerlyoung.flashappsearch.search.model.Input

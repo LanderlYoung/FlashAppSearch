@@ -1,4 +1,4 @@
-package com.example.androiddevchallenge.ui.piece
+package io.github.landerlyoung.flashappsearch.search.ui.piece
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

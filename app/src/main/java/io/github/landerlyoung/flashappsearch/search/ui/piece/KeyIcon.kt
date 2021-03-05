@@ -1,26 +1,25 @@
-package com.example.androiddevchallenge.ui.piece
+package io.github.landerlyoung.flashappsearch.search.ui.piece
 
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.colorspace.ColorSpaces
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
 import io.github.landerlyoung.flashappsearch.search.model.Input
 import java.util.*
-import kotlin.math.min
 
 /*
  * ```
@@ -42,42 +41,50 @@ fun KeyIcon(
         .joinToString(separator = "")
         .toUpperCase(Locale.US)
 
-    var baseSize by remember { mutableStateOf(0f) }
-
     // https://stackoverflow.com/questions/63971569/androidautosizetexttype-in-jetpack-compose
-    Column(
-        modifier = modifier.onSizeChanged { (width, height) ->
-            baseSize = min(width * 1.7f, height.toFloat())
-        }
-    ) {
-
-        val firstLevelSize = baseSize * 5 / 10
-        val secondLevelSize = baseSize * 2 / 10
-
+    Column(modifier = modifier) {
         Spacer(Modifier.weight(1f))
 
-        Text(
-            text = first,
-            color = color,
-            fontSize = LocalDensity.current.run {
-                firstLevelSize.toSp()
-            },
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        )
+        BoxWithConstraints(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(5f)
+        ) {
+            val fontSize = calculateFontSize(maxWidth, maxHeight)
 
-        Spacer(Modifier.weight(0.2f))
+            Text(
+                text = first,
+                color = color,
+                fontSize = LocalDensity.current.run { fontSize.toSp() },
+                modifier = Modifier.fillMaxSize(),
+                textAlign = TextAlign.Center,
+            )
+        }
 
-        Text(
-            text = second,
-            color = color.convert(ColorSpaces.Srgb).copy(alpha = 0.8f),
-            fontSize = LocalDensity.current.run {
-                secondLevelSize.toSp()
-            },
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-        )
+        Spacer(Modifier.weight(0.5f))
+
+        BoxWithConstraints(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(2f)
+        ) {
+            val fontSize = calculateFontSize(maxWidth, maxHeight)
+
+            Text(
+                text = second,
+                color = color.convert(ColorSpaces.Srgb).copy(alpha = 0.8f),
+                fontSize = LocalDensity.current.run { fontSize.toSp() },
+                modifier = Modifier.fillMaxSize(),
+                textAlign = TextAlign.Center,
+            )
+        }
 
         Spacer(Modifier.weight(1f))
     }
+}
+
+private fun calculateFontSize(width: Dp, height: Dp): Dp {
+    return min(width * 1.7f, height) * 0.8f
 }
 
 @Preview
@@ -88,7 +95,7 @@ fun previewKeyIcon() {
             key = Input("2abc"),
             color = Color.Black,
             Modifier.size(
-                200.dp, 500.dp
+                200.dp, 100.dp
             )
         )
     }

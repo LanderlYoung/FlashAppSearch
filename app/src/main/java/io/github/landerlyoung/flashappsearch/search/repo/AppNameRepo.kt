@@ -237,16 +237,14 @@ object AppNameRepo {
      * @return <package, name, pinyin>
      */
     private fun findApps(keys: List<Input>): Sequence<Pair<String, Pair<CharSequence, String>>> =
-        synchronized(this) {
-            if (lastSearchInputs != null && keys.startWith(lastSearchInputs!!)) {
-                Log.i(TAG, "getAllApps result from $keys")
-                lastSearchResult!!.map {
-                    it.first to it.second
-                }.asSequence()
-            } else {
-                appNamePinyinMapper.entries
-                    .asSequence().map { it.key to it.value }
-            }
+        if (lastSearchInputs != null && keys.startWith(lastSearchInputs!!)) {
+            Log.i(TAG, "getAllApps result from $keys")
+            lastSearchResult!!.map {
+                it.first to it.second
+            }.asSequence()
+        } else {
+            appNamePinyinMapper.entries
+                .asSequence().map { it.key to it.value }
         }
 
     /**
@@ -254,29 +252,30 @@ object AppNameRepo {
      */
     @SuppressLint("RestrictedApi")
     fun queryApp(keys: List<Input>): LiveData<List<Pair<String, CharSequence>>> {
-        return object : ComputableLiveData<List<Pair<String, CharSequence>>>(App.serialExecutors()) {
+        return object :
+            ComputableLiveData<List<Pair<String, CharSequence>>>(App.serialExecutors()) {
             override fun compute(): List<Pair<String, CharSequence>> {
                 if (keys.isEmpty()) {
                     return listOf()
                 }
-                return time("queryApp $keys") {
+                return time("queryApp") {
                     val result =
-                        findApps(keys).map {
-                            Triple(
-                                it.first,
-                                it.second,
-                                calculateMatchResult(keys, it.second.second)
-                            )
-                        }.filter {
-                            keys.isNotEmpty() && it.third > 0
-                        }.sortedByDescending {
-                            it.third
+                        synchronized(this@AppNameRepo) {
+                            findApps(keys).map {
+                                Triple(
+                                    it.first,
+                                    it.second,
+                                    calculateMatchResult(keys, it.second.second)
+                                )
+                            }.filter {
+                                keys.isNotEmpty() && it.third > 0
+                            }.sortedByDescending {
+                                it.third
+                            }.also {
+                                lastSearchInputs = keys
+                                lastSearchResult = it
+                            }
                         }
-
-                    synchronized(this@AppNameRepo) {
-                        lastSearchInputs = keys
-                        lastSearchResult = result
-                    }
 
                     var count = 0
                     result.fold(mutableListOf()) { list, pkg ->
