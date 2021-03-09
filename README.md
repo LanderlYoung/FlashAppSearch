@@ -1,4 +1,4 @@
-#Flash App Search
+# Flash App Search
 
 A T9 quick app search tool with a transparent Widget to quick launch.
 
