@@ -5,13 +5,35 @@ import android.content.Context
 import android.content.pm.PackageInfo
 import android.util.Log
 import androidx.lifecycle.ComputableLiveData
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.LiveDataReactiveStreams
+import androidx.lifecycle.asLiveData
 import io.github.landerlyoung.flashappsearch.App
 import io.github.landerlyoung.flashappsearch.BuildConfig
 import io.github.landerlyoung.flashappsearch.search.model.AppInfoDataBase
 import io.github.landerlyoung.flashappsearch.search.model.AppInfoEntity
 import io.github.landerlyoung.flashappsearch.search.model.Input
 import io.github.landerlyoung.flashappsearch.search.utils.time
+import io.reactivex.Observable
+import io.reactivex.disposables.Disposable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flatMap
+import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 /**
  * <pre>
@@ -233,6 +255,27 @@ object AppNameRepo {
         }.liveData
     }
 
+    private fun flowTest() {
+        val f = flow { emit(0) }
+        runBlocking {
+            f.collect {
+
+            }
+            f.collectLatest { }
+        }
+        Observable.just(0)
+    }
+
+    private fun Disposable.attachToLifecycle(lifecycleOwner: LifecycleOwner) {
+        lifecycleOwner.lifecycle.addObserver(object : LifecycleEventObserver {
+            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                if (event == Lifecycle.Event.ON_DESTROY) {
+                    this@attachToLifecycle.dispose()
+                }
+            }
+        })
+    }
+
     /**
      * @return <package, name, pinyin>
      */
@@ -259,34 +302,42 @@ object AppNameRepo {
                     return listOf()
                 }
                 return time("queryApp") {
-                    val result =
-                        synchronized(this@AppNameRepo) {
-                            findApps(keys).map {
-                                Triple(
-                                    it.first,
-                                    it.second,
-                                    calculateMatchResult(keys, it.second.second)
-                                )
-                            }.filter {
-                                keys.isNotEmpty() && it.third > 0
-                            }.sortedByDescending {
-                                it.third
-                            }.also {
-                                lastSearchInputs = keys
-                                lastSearchResult = it
-                            }
-                        }
-
-                    var count = 0
-                    result.fold(mutableListOf()) { list, pkg ->
-                        if (BuildConfig.DEBUG && count++ < 4) {
-                            Log.i(TAG, pkg.toString())
-                        }
-                        list.add(pkg.first to pkg.second.first)
-                        list
-                    }
+                    performQueryApps(keys)
                 }
             }
         }.liveData
+    }
+
+
+    private fun performQueryApps(keys: List<Input>): List<Pair<String, CharSequence>> {
+        val result = queryBasedOnCache(keys)
+
+        var count = 0
+        return result.fold(mutableListOf()) { list, pkg ->
+            if (BuildConfig.DEBUG && count++ < 4) {
+                Log.i(TAG, pkg.toString())
+            }
+            list.add(pkg.first to pkg.second.first)
+            list
+        }
+    }
+
+    private fun queryBasedOnCache(keys: List<Input>): Sequence<Triple<String, Pair<CharSequence, String>, Double>> {
+        synchronized(this@AppNameRepo) {
+            return findApps(keys).map {
+                Triple(
+                    it.first,
+                    it.second,
+                    calculateMatchResult(keys, it.second.second)
+                )
+            }.filter {
+                keys.isNotEmpty() && it.third > 0
+            }.sortedByDescending {
+                it.third
+            }.also {
+                lastSearchInputs = keys
+                lastSearchResult = it
+            }
+        }
     }
 }
