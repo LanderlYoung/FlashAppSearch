@@ -6,7 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.ViewModelProvider
-import dev.chrisbanes.accompanist.insets.ProvideWindowInsets
+import com.google.accompanist.insets.ProvideWindowInsets
 import io.github.landerlyoung.flashappsearch.search.ui.piece.FlashAppSearch
 import io.github.landerlyoung.flashappsearch.search.ui.piece.Theme
 import io.github.landerlyoung.flashappsearch.search.vm.AppSearchViewModel
