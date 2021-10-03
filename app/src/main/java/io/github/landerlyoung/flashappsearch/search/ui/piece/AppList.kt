@@ -2,6 +2,7 @@ package io.github.landerlyoung.flashappsearch.search.ui.piece
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -25,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.landerlyoung.flashappsearch.search.ui.AppIconFetcher
+import io.github.landerlyoung.flashappsearch.search.utils.DrawablePainter
 
 /*
  * ```
@@ -62,17 +64,12 @@ fun AppItem(
             .observeAsState(null)
 
         val size = 48.dp
-        val sizePx = LocalDensity.current.run {
-            size.toPx()
-        }
-        Canvas(
+
+        Image(
+            painter = DrawablePainter(drawable),
+            contentDescription = appName,
             modifier = Modifier.size(size, size)
-        ) {
-            if (drawable != null) {
-                drawable?.setBounds(0, 0, sizePx.toInt(), sizePx.toInt())
-                drawable?.draw(drawContext.canvas.nativeCanvas)
-            }
-        }
+        )
 
         Spacer(Modifier.height(2.dp))
         Text(

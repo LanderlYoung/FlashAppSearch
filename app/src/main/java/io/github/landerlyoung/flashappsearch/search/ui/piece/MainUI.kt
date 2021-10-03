@@ -56,7 +56,7 @@ fun FlashAppSearch(vm: AppSearchViewModel) {
             SearchBar(
                 showAllApps = showAllApp,
                 inputs = inputs ?: emptyList(),
-                onClickShowAll = { vm.showAllApps.value = true })
+                onClickShowAll = { vm.showAllApp() })
         },
         modifier = Modifier
             .statusBarsPadding()

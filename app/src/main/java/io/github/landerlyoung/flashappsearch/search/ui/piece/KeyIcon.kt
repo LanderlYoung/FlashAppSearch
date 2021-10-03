@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import io.github.landerlyoung.flashappsearch.search.model.Input
-import java.util.*
+import java.util.Locale
 
 /*
  * ```
@@ -125,13 +125,13 @@ fun PressedSurface() {
         label = "changeSize"
     )
 
-    val width by transition.animateDp() { state ->
+    val width by transition.animateDp(label = "Width") { state ->
         when (state) {
             SurfaceState.Released -> 20.dp
             SurfaceState.Pressed -> 50.dp
         }
     }
-    val surfaceColor by transition.animateColor { state ->
+    val surfaceColor by transition.animateColor(label = "Height") { state ->
         when (state) {
             SurfaceState.Released -> Color.Blue
             SurfaceState.Pressed -> Color.Red
@@ -144,7 +144,7 @@ fun PressedSurface() {
         }
     }
 
-    Row() {
+    Row {
         Surface(
             color = surfaceColor.copy(alpha = selectedAlpha),
             modifier = Modifier
