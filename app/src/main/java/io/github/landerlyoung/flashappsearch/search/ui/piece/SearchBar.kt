@@ -105,7 +105,7 @@ fun SearchBar(
 
 @Preview
 @Composable
-private fun previewKeypadT9() {
+private fun PreviewKeypadT9() {
     MaterialTheme {
         SearchBar(showAllApps = false, inputs = listOf(
             T9.k1,

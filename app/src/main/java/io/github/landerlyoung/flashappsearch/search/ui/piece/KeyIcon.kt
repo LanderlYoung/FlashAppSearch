@@ -49,7 +49,7 @@ fun KeyIcon(
     val first = key.keys[0].toString()
     val second = key.keys.subList(1, key.keys.size)
         .joinToString(separator = "")
-        .toUpperCase(Locale.US)
+        .lowercase()
 
     // https://stackoverflow.com/questions/63971569/androidautosizetexttype-in-jetpack-compose
     Column(modifier = modifier) {
@@ -99,7 +99,7 @@ private fun calculateFontSize(width: Dp, height: Dp): Dp {
 
 @Preview
 @Composable
-fun previewKeyIcon() {
+fun PreviewKeyIcon() {
     MaterialTheme {
         KeyIcon(
             key = Input("2abc"),

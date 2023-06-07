@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.ViewModelProvider
-import com.google.accompanist.insets.ProvideWindowInsets
 import io.github.landerlyoung.flashappsearch.search.ui.piece.FlashAppSearch
 import io.github.landerlyoung.flashappsearch.search.ui.piece.Theme
 import io.github.landerlyoung.flashappsearch.search.vm.AppSearchViewModel
@@ -23,11 +22,9 @@ class AppSearchActivity : AppCompatActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             Theme {
-                ProvideWindowInsets {
-                    FlashAppSearch(
-                        vm = viewModel
-                    )
-                }
+                FlashAppSearch(
+                    vm = viewModel
+                )
             }
         }
     }

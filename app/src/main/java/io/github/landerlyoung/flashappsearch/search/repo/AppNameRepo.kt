@@ -1,5 +1,6 @@
 package io.github.landerlyoung.flashappsearch.search.repo
 
+//import androidx.lifecycle.LiveDataReactiveStreams
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageInfo
@@ -7,11 +8,8 @@ import android.util.Log
 import androidx.lifecycle.ComputableLiveData
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.LiveDataReactiveStreams
-import androidx.lifecycle.asLiveData
 import io.github.landerlyoung.flashappsearch.App
 import io.github.landerlyoung.flashappsearch.BuildConfig
 import io.github.landerlyoung.flashappsearch.search.model.AppInfoDataBase
@@ -20,19 +18,8 @@ import io.github.landerlyoung.flashappsearch.search.model.Input
 import io.github.landerlyoung.flashappsearch.search.utils.time
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flatMap
-import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 /**
@@ -108,7 +95,7 @@ object AppNameRepo {
                 val pinyin = if (pm.getLaunchIntentForPackage(pkgInfo.packageName) == null) {
                     null
                 } else {
-                    pinyinConverter.hanzi2Pinyin(label).toLowerCase()
+                    pinyinConverter.hanzi2Pinyin(label).lowercase()
                 }
                 AppInfoEntity(it.first, label, pinyin, pkgInfo.lastUpdateTime)
             }
@@ -246,7 +233,7 @@ object AppNameRepo {
      * @return <package name, label>
      */
     @SuppressLint("RestrictedApi")
-    fun allApps(): LiveData<List<Pair<String, CharSequence>>> {
+    fun allApps(): LiveData<List<Pair<String, CharSequence>>?> {
         return object : ComputableLiveData<List<Pair<String, CharSequence>>>() {
             override fun compute(): List<Pair<String, CharSequence>> {
                 return appNamePinyinMapper.entries
@@ -294,7 +281,7 @@ object AppNameRepo {
      * @return <package name, label>
      */
     @SuppressLint("RestrictedApi")
-    fun queryApp(keys: List<Input>): LiveData<List<Pair<String, CharSequence>>> {
+    fun queryApp(keys: List<Input>): LiveData<List<Pair<String, CharSequence>>?> {
         return object :
             ComputableLiveData<List<Pair<String, CharSequence>>>(App.serialExecutors()) {
             override fun compute(): List<Pair<String, CharSequence>> {
