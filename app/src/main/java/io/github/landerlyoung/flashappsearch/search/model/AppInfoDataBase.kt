@@ -11,6 +11,10 @@ import androidx.room.Query
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import android.content.Context
+import androidx.annotation.Keep
+import androidx.room.ProvidedTypeConverter
+import androidx.room.TypeConverter
+import androidx.room.TypeConverters
 import io.github.landerlyoung.flashappsearch.search.repo.PinyinSequence
 
 /*
@@ -24,11 +28,11 @@ import io.github.landerlyoung.flashappsearch.search.repo.PinyinSequence
 
 @Entity
 data class AppInfoEntity(
-    @PrimaryKey
-    val packageName: String,
-    val appName: String,
-    val pinyin: PinyinSequence?,
-    val lastUpdated: Long
+        @PrimaryKey
+        val packageName: String,
+        val appName: String,
+        val pinyin: PinyinSequence?,
+        val lastUpdated: Long
 )
 
 @Dao
@@ -47,9 +51,10 @@ interface AppInfoDao {
 }
 
 @Database(
-    entities = [AppInfoEntity::class],
-    version = 1
+        entities = [AppInfoEntity::class],
+        version = 1
 )
+@TypeConverters(Converters::class)
 abstract class AppInfoDataBase : RoomDatabase() {
     abstract fun appInfoDao(): AppInfoDao
 
@@ -57,7 +62,18 @@ abstract class AppInfoDataBase : RoomDatabase() {
         private const val DB_NAME = "app_info.db"
 
         fun createDb(context: Context) =
-            Room.databaseBuilder(context, AppInfoDataBase::class.java, DB_NAME)
-                .build()
+                Room.databaseBuilder(context, AppInfoDataBase::class.java, DB_NAME)
+                        .build()
     }
+}
+
+@Keep
+class Converters {
+    @TypeConverter
+    fun serializePinyinSequence(it: PinyinSequence): String =
+        it.serializeToString()
+
+    @TypeConverter
+    fun deserializePinyinSequence(string: String): PinyinSequence =
+            PinyinSequence.deserializeFromString(string)
 }

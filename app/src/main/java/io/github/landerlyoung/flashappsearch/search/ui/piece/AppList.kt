@@ -81,6 +81,7 @@ fun AppItem(
 @ExperimentalFoundationApi
 @Composable
 fun AppList(
+    // package name, app name
     appPackageNames: List<Pair<String, CharSequence>>,
     iconFetcher: AppIconFetcher,
     modifier: Modifier = Modifier,

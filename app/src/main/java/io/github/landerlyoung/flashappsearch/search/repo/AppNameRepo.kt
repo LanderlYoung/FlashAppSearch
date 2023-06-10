@@ -21,6 +21,8 @@ import io.reactivex.disposables.Disposable
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
+import kotlin.math.pow
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * <pre>
@@ -43,8 +45,14 @@ object AppNameRepo {
         }
     }
 
-    // packageName -> (name -> pinyin)
-    private val appNamePinyinMapper: Map<String, Pair<CharSequence, String>> by lazy {
+    data class AppInfo(
+        val packageName: String,
+        val name: CharSequence,
+        val pinyin: PinyinSequence
+    )
+
+    // packageName -> AppInfo
+    private val appNamePinyinMapper: Map<String, AppInfo> by lazy {
         time("appNamePinyinMapper") {
             val appInfoDao = AppInfoDataBase.createDb(context).appInfoDao()
             val allDbInfo = time("allDbInfo") {
@@ -78,12 +86,13 @@ object AppNameRepo {
             val delete = HashSet(dbAppNames).also { it.removeAll(intersect) }
             val added = HashSet(appNames).also { it.removeAll(intersect) }
 
-            val mapper = HashMap<String, Pair<CharSequence, String>>()
+            val mapper = HashMap<String, AppInfo>()
 
             intersect.forEach {
                 val record = allDbInfo[it.first]!!
                 if (record.pinyin != null) {
-                    mapper[record.packageName] = record.appName to record.pinyin
+                    mapper[record.packageName] =
+                        AppInfo(record.packageName, record.appName, record.pinyin)
                 }
             }
 
@@ -102,7 +111,7 @@ object AppNameRepo {
 
             newRecords.forEach {
                 if (it.pinyin != null) {
-                    mapper[it.packageName] = it.appName to it.pinyin
+                    mapper[it.packageName] = AppInfo(it.packageName, it.appName, it.pinyin)
                 }
             }
 
@@ -130,90 +139,10 @@ object AppNameRepo {
         }
     }
 
-    private val fibos = DoubleArray(64)
-
-    init {
-        fibos[fibos.size - 1] = 1.toDouble()
-        fibos[fibos.size - 2] = 2.toDouble()
-        for (i in (0..fibos.size - 3).reversed()) {
-            fibos[i] = fibos[i + 1] + fibos[i + 2]
-        }
-    }
-
-    private fun indexMultiplier(index: Int): Double {
-        if (index >= fibos.size) return 0.1
-        return fibos[index]
-    }
-
-    /**
-     * calculate how good input matches pinyinName
-     */
-    internal fun calculateMatchResult(input: List<Input>, pinyinName: String): Double {
-        var inputIndex = 0
-        var matches = 0.0
-
-        var pinyinIndex = 0
-        var wordIndex = 0
-        var charIndex = 0
-        var matchedWord = false
-        while (inputIndex < input.size && pinyinIndex < pinyinName.length) {
-            when (pinyinName[pinyinIndex]) {
-                PinyinConverter.PINYIN_SPLITTER_CHAR -> {
-                    wordIndex++
-                    charIndex = 0
-                    matchedWord = false
-                }
-
-                PinyinConverter.PINYIN_SPLITTER_MULTI_CHAR -> {
-                    if (matchedWord) {
-                        // 该字的某个读音已经匹配了，忽略多音字的其他音节
-                        pinyinIndex++
-                        while (pinyinIndex < pinyinName.length &&
-                            pinyinName[pinyinIndex] != PinyinConverter.PINYIN_SPLITTER_CHAR
-                        ) {
-                            pinyinIndex++
-                        }
-                        continue
-                    }
-                    charIndex = 0
-                }
-
-                in input[inputIndex].keySets -> {
-                    matchedWord = true
-                    // 计算得分
-                    var score = indexMultiplier(pinyinIndex + charIndex)
-                    if (charIndex == 0) {
-                        // 首字母权重增加
-                        score *= 2
-                    }
-                    matches += score
-                    inputIndex++
-                }
-            }
-            pinyinIndex++
-        }
-
-        return if (inputIndex < input.size && pinyinIndex == pinyinName.length) {
-            // exhausted
-            0.0
-        } else {
-            if (pinyinIndex == pinyinName.length || pinyinName.indexOf(
-                    PinyinConverter.PINYIN_SPLITTER_CHAR,
-                    pinyinIndex
-                ) == -1
-            ) {
-                // 完整匹配，有加分
-                matches * 1.5
-            } else {
-                matches
-            }
-        }
-    }
-
     private var lastSearchInputs: List<Input>? = null
 
     // package -> name -> score
-    private var lastSearchResult: Sequence<Triple<String, Pair<CharSequence, String>, Double>>? =
+    private var lastSearchResult: Sequence<Pair<AppInfo, Double>>? =
         null
 
     private fun <T> List<T>.startWith(other: List<T>): Boolean {
@@ -235,11 +164,10 @@ object AppNameRepo {
      * @return <package name, label>
      */
     @SuppressLint("RestrictedApi")
-    fun allApps(): LiveData<List<Pair<String, CharSequence>>?> {
-        return object : ComputableLiveData<List<Pair<String, CharSequence>>>() {
-            override fun compute(): List<Pair<String, CharSequence>> {
-                return appNamePinyinMapper.entries
-                    .map { it.key to it.value.first }
+    fun allApps(): LiveData<List<AppInfo>?> {
+        return object : ComputableLiveData<List<AppInfo>>() {
+            override fun compute(): List<AppInfo> {
+                return appNamePinyinMapper.values.toList()
             }
         }.liveData
     }
@@ -265,36 +193,27 @@ object AppNameRepo {
         })
     }
 
-
-
-    data class AppInfo(
-        val packageName: String,
-        val appName: String,
-        val namePinyin: List<Pinyin>
-    )
-
     /**
      * @return <package, name, pinyin>
      */
-    private fun findApps(keys: List<Input>): Sequence<Pair<String, Pair<CharSequence, String>>> =
+    private fun findApps(keys: List<Input>): Sequence<AppInfo> =
         if (lastSearchInputs != null && keys.startWith(lastSearchInputs!!)) {
             Log.i(TAG, "getAllApps result from $keys")
             lastSearchResult!!.map {
-                it.first to it.second
-            }.asSequence()
+                it.first
+            }
         } else {
-            appNamePinyinMapper.entries
-                .asSequence().map { it.key to it.value }
+            appNamePinyinMapper.entries.asSequence().map { it.value }
         }
 
     /**
      * @return <package name, label>
      */
     @SuppressLint("RestrictedApi")
-    fun queryApp(keys: List<Input>): LiveData<List<Pair<String, CharSequence>>?> {
+    fun queryApp(keys: List<Input>): LiveData<List<AppInfo>?> {
         return object :
-            ComputableLiveData<List<Pair<String, CharSequence>>>(App.serialExecutors()) {
-            override fun compute(): List<Pair<String, CharSequence>> {
+            ComputableLiveData<List<AppInfo>>(App.serialExecutors()) {
+            override fun compute(): List<AppInfo> {
                 if (keys.isEmpty()) {
                     return listOf()
                 }
@@ -306,31 +225,31 @@ object AppNameRepo {
     }
 
 
-    private fun performQueryApps(keys: List<Input>): List<Pair<String, CharSequence>> {
+    private fun performQueryApps(keys: List<Input>): List<AppInfo> {
         val result = queryBasedOnCache(keys)
+
+        if (BuildConfig.DEBUG) {
+            Log.i(TAG, "search result keys:$keys list:${result.toList()}")
+        }
 
         var count = 0
         return result.fold(mutableListOf()) { list, pkg ->
             if (BuildConfig.DEBUG && count++ < 4) {
                 Log.i(TAG, pkg.toString())
             }
-            list.add(pkg.first to pkg.second.first)
+            list.add(pkg.first)
             list
         }
     }
 
-    private fun queryBasedOnCache(keys: List<Input>): Sequence<Triple<String, Pair<CharSequence, String>, Double>> {
+    private fun queryBasedOnCache(keys: List<Input>): Sequence<Pair<AppInfo, Double>> {
         synchronized(this@AppNameRepo) {
             return findApps(keys).map {
-                Triple(
-                    it.first,
-                    it.second,
-                    calculateMatchResult(keys, it.second.second)
-                )
+                it to MatchScoreCalculator.calculateMatchResult(keys, it.pinyin)
             }.filter {
-                keys.isNotEmpty() && it.third > 0
+                keys.isNotEmpty() && it.second > 0
             }.sortedByDescending {
-                it.third
+                it.second
             }.also {
                 lastSearchInputs = keys
                 lastSearchResult = it

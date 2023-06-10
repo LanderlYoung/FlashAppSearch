@@ -64,7 +64,7 @@ fun FlashAppSearch(vm: AppSearchViewModel) {
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
             AppList(
-                appPackageNames = appList ?: emptyList(),
+                appPackageNames = appList?.map { it.packageName to it.name } ?: emptyList(),
                 iconFetcher = iconFetcher,
                 modifier = Modifier
                     .fillMaxWidth()

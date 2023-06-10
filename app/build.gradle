@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    compileSdkVersion 33
+    compileSdk 33
 
     defaultConfig {
         applicationId "io.github.landerlyoung.flashappsearch"
@@ -66,7 +66,6 @@ android {
 kotlin {
     jvmToolchain(8)
 }
-
 
 dependencies {
     // https://kotlinlang.org/docs/releases.html#release-details
