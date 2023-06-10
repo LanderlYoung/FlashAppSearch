@@ -46,8 +46,14 @@ class MatchScoreUnitTest {
             )
         )
 
-        val score1 = MatchScoreCalculator.calculateMatchResult(keys, xiangce)
-        val score2 = MatchScoreCalculator.calculateMatchResult(keys, xiazaiguanli)
+        val score1 = MatchScoreCalculator.calculateMatchResult(
+            keys,
+            xiangce
+        )
+        val score2 = MatchScoreCalculator.calculateMatchResult(
+            keys,
+            xiazaiguanli
+        )
 
         assertTrue(score1 < score2)
     }

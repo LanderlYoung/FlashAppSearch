@@ -35,7 +35,6 @@ class AppSearchViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-
     init {
         AppNameRepo.quickInit(app)
         _input.value = mutableListOf()
