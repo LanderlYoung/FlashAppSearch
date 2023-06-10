@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,8 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
-import dev.chrisbanes.accompanist.insets.navigationBarsPadding
-import dev.chrisbanes.accompanist.insets.statusBarsPadding
 import io.github.landerlyoung.flashappsearch.search.model.Input
 import io.github.landerlyoung.flashappsearch.search.ui.AppIconFetcher
 import io.github.landerlyoung.flashappsearch.search.vm.AppSearchViewModel
@@ -56,7 +56,7 @@ fun FlashAppSearch(vm: AppSearchViewModel) {
             SearchBar(
                 showAllApps = showAllApp,
                 inputs = inputs ?: emptyList(),
-                onClickShowAll = { vm.showAllApps.value = true })
+                onClickShowAll = { vm.showAllApp() })
         },
         modifier = Modifier
             .statusBarsPadding()
@@ -64,7 +64,7 @@ fun FlashAppSearch(vm: AppSearchViewModel) {
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
             AppList(
-                appPackageNames = appList ?: emptyList(),
+                appPackageNames = appList?.map { it.packageName to it.name } ?: emptyList(),
                 iconFetcher = iconFetcher,
                 modifier = Modifier
                     .fillMaxWidth()

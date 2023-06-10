@@ -13,8 +13,8 @@ data class Input(val keys: List<Char>) {
     init {
         keySets = HashSet(keys)
     }
-    constructor(keys: String) : this(keys.toCharArray().map { it.toLowerCase() })
-    constructor(char: Char) : this(listOf(char.toLowerCase()))
+    constructor(keys: String) : this(keys.toCharArray().map { it.lowercaseChar() })
+    constructor(char: Char) : this(listOf(char.lowercaseChar()))
 
     companion object {
         @JvmField

@@ -2,7 +2,6 @@ package io.github.landerlyoung.flashappsearch.search.model
 
 import android.content.Context
 import androidx.annotation.WorkerThread
-import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Entity

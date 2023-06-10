@@ -119,7 +119,7 @@ private fun KeyPadRow(
 @Preview
 @Composable
 @ExperimentalFoundationApi
-private fun previewKeypadT9() {
+private fun PreviewKeypadT9() {
     MaterialTheme {
         KeyPadT9(onKey = { },onBackspace = {}, onClear = { }, modifier = Modifier.fillMaxSize())
     }

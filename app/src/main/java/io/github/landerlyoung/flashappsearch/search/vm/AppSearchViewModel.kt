@@ -1,10 +1,6 @@
 package io.github.landerlyoung.flashappsearch.search.vm
 
-import android.annotation.SuppressLint
 import android.app.Application
-import android.graphics.drawable.Drawable
-import android.util.LruCache
-import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -27,9 +23,11 @@ class AppSearchViewModel(app: Application) : AndroidViewModel(app) {
     val input: LiveData<List<Input>>
         get() = _input as LiveData<List<Input>>
 
-    val showAllApps = MutableLiveData(false)
+    private val _showAllApps = MutableLiveData(false)
+    val showAllApps: LiveData<Boolean>
+        get() = _showAllApps
 
-    val resultApps = switchMapMulti(showAllApps, _input) { show, input ->
+    val resultApps = switchMapMulti(_showAllApps, _input) { show, input ->
         if (show!!) {
             AppNameRepo.allApps()
         } else {
@@ -37,14 +35,13 @@ class AppSearchViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-
     init {
         AppNameRepo.quickInit(app)
         _input.value = mutableListOf()
     }
 
     fun input(key: Input) {
-        showAllApps.value = false
+        _showAllApps.value = false
         _input.value?.let {
             it.add(key)
             _input.value = it
@@ -52,7 +49,7 @@ class AppSearchViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun backspace() {
-        showAllApps.value = false
+        _showAllApps.value = false
         _input.value?.let {
             if (it.isNotEmpty()) {
                 it.removeAt(it.size - 1)
@@ -62,10 +59,14 @@ class AppSearchViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun clear() {
-        showAllApps.value = false
+        _showAllApps.value = false
         _input.value?.let {
             it.clear()
             _input.value = it
         }
+    }
+
+    fun showAllApp() {
+        _showAllApps.value = true
     }
 }

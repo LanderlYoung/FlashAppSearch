@@ -1,30 +1,28 @@
 package io.github.landerlyoung.flashappsearch.search.ui.piece
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.GridCells
-import androidx.compose.foundation.lazy.LazyVerticalGrid
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.landerlyoung.flashappsearch.search.ui.AppIconFetcher
+import io.github.landerlyoung.flashappsearch.search.utils.DrawablePainter
 
 /*
  * ```
@@ -62,17 +60,12 @@ fun AppItem(
             .observeAsState(null)
 
         val size = 48.dp
-        val sizePx = LocalDensity.current.run {
-            size.toPx()
-        }
-        Canvas(
+
+        Image(
+            painter = DrawablePainter(drawable),
+            contentDescription = appName,
             modifier = Modifier.size(size, size)
-        ) {
-            if (drawable != null) {
-                drawable?.setBounds(0, 0, sizePx.toInt(), sizePx.toInt())
-                drawable?.draw(drawContext.canvas.nativeCanvas)
-            }
-        }
+        )
 
         Spacer(Modifier.height(2.dp))
         Text(
@@ -88,6 +81,7 @@ fun AppItem(
 @ExperimentalFoundationApi
 @Composable
 fun AppList(
+    // package name, app name
     appPackageNames: List<Pair<String, CharSequence>>,
     iconFetcher: AppIconFetcher,
     modifier: Modifier = Modifier,
@@ -95,10 +89,11 @@ fun AppList(
     onAppLongClick: (packageName: String) -> Unit = {},
 ) {
     LazyVerticalGrid(
-        cells = GridCells.Adaptive(appItemWidth + 16.dp),
+        columns = GridCells.Adaptive(appItemWidth + 16.dp),
         modifier = modifier
     ) {
-        items(appPackageNames) { (packageName, name) ->
+        items(appPackageNames.size) { i ->
+            val (packageName, name) = appPackageNames[i]
             AppItem(packageName, name.toString(), iconFetcher, onAppClick, onAppLongClick)
         }
     }
@@ -107,7 +102,7 @@ fun AppList(
 @ExperimentalFoundationApi
 @Preview
 @Composable
-fun previewAppItem() {
+fun PreviewAppItem() {
     val context = LocalContext.current
     AppItem(
         appPackageName = context.packageName,

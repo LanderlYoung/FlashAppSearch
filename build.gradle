@@ -2,16 +2,16 @@
 
 buildscript {
     ext {
-        kotlin_version = '1.4.30'
-        compose_version = '1.0.0-beta01'
+        kotlin_version = '1.8.10'
+        gradle_version = '8.0.2'
+        compose_version = '1.4.3'
     }
     repositories {
         google()
         mavenCentral()
-        jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.0-alpha14'
+        classpath "com.android.tools.build:gradle:$gradle_version"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -19,11 +19,15 @@ buildscript {
     }
 }
 
+plugins {
+    id 'com.google.devtools.ksp' version '1.8.10-1.0.9' apply false
+}
+
 allprojects {
     repositories {
+        mavenLocal()
         google()
         mavenCentral()
-        jcenter()
     }
 }
 
