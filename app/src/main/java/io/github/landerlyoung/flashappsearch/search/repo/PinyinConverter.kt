@@ -32,30 +32,43 @@ class PinyinConverter {
     private val db = PinyinDataBase.createDb(App.context)
     private val dao = db.pinyinDao()
 
-    private val pinyinCache = object : LruCache<String, String>(1024) {
-        override fun create(key: String?): String? {
+    private val pinyinCache = object : LruCache<String, Pinyin>(1024) {
+        override fun create(key: String?): Pinyin? {
             return key?.let {
-                dao.queryPinyin(it).foldRight(HashSet<String>()) { pinyin, hs ->
+                dao.queryPinyin(it).foldRight(mutableListOf<String>()) { pinyin, hs ->
                     hs.add(pinyin)
                     hs
-                }.joinToString(separator = PINYIN_SPLITTER_MULTI).let {
+                }.let {
                     if (it.isEmpty()) {
                         Log.w(TAG, "can't find pinyin for $key")
                         null
                     } else {
-                        it
+                        Pinyin(it)
                     }
                 }
             }
         }
     }
 
+    /**
+     * convert chinese character sequence to [PinyinSequence]
+     */
     @WorkerThread
-    fun hanzi2Pinyin(hanzi: CharSequence): String {
-        val pinyin = chineseRegex.replace(hanzi) { mr ->
-            val m = mr.value
-            " " + (pinyinCache[m] ?: m) + " "
+    fun hanzi2Pinyin(hanzi: CharSequence): PinyinSequence? {
+        var mr: MatchResult? = chineseRegex.matchEntire(hanzi) ?: return null
+        val list = mutableListOf<Pinyin>()
+        while (mr != null) {
+            pinyinCache[mr.value]?.let {
+                list.add(it)
+            }
         }
-        return nonCharRegex.replace(pinyin, PINYIN_SPLITTER).trim('|')
+        return PinyinSequence(list)
     }
 }
+
+data class PinyinSequence(val pinyin: List<Pinyin>)
+
+/**
+ * 一个字的拼音，可能是多音字
+ */
+data class Pinyin(val readings: List<String>)

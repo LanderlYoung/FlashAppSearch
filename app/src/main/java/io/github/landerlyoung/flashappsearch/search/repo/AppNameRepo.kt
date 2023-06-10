@@ -95,7 +95,7 @@ object AppNameRepo {
                 val pinyin = if (pm.getLaunchIntentForPackage(pkgInfo.packageName) == null) {
                     null
                 } else {
-                    pinyinConverter.hanzi2Pinyin(label).lowercase()
+                    pinyinConverter.hanzi2Pinyin(label)
                 }
                 AppInfoEntity(it.first, label, pinyin, pkgInfo.lastUpdateTime)
             }
@@ -163,6 +163,7 @@ object AppNameRepo {
                     charIndex = 0
                     matchedWord = false
                 }
+
                 PinyinConverter.PINYIN_SPLITTER_MULTI_CHAR -> {
                     if (matchedWord) {
                         // 该字的某个读音已经匹配了，忽略多音字的其他音节
@@ -176,6 +177,7 @@ object AppNameRepo {
                     }
                     charIndex = 0
                 }
+
                 in input[inputIndex].keySets -> {
                     matchedWord = true
                     // 计算得分
@@ -262,6 +264,14 @@ object AppNameRepo {
             }
         })
     }
+
+
+
+    data class AppInfo(
+        val packageName: String,
+        val appName: String,
+        val namePinyin: List<Pinyin>
+    )
 
     /**
      * @return <package, name, pinyin>

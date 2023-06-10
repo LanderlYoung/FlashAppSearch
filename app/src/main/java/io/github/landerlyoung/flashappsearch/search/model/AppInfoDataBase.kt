@@ -11,6 +11,7 @@ import androidx.room.Query
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import android.content.Context
+import io.github.landerlyoung.flashappsearch.search.repo.PinyinSequence
 
 /*
  * ```
@@ -26,7 +27,7 @@ data class AppInfoEntity(
     @PrimaryKey
     val packageName: String,
     val appName: String,
-    val pinyin: String?,
+    val pinyin: PinyinSequence?,
     val lastUpdated: Long
 )
 
