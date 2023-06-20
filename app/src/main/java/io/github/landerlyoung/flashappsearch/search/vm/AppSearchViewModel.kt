@@ -31,7 +31,8 @@ class AppSearchViewModel(app: Application) : AndroidViewModel(app) {
         if (show!!) {
             AppNameRepo.allApps()
         } else {
-            AppNameRepo.queryApp(input!!)
+            // make a copy of list
+            AppNameRepo.queryApp(input!!.toList())
         }
     }
 
