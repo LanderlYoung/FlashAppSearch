@@ -50,34 +50,51 @@ class PinyinConverter {
 
     /**
      * convert chinese character sequence to [PinyinSequence]
+     * leave other characters as-is
      */
     @WorkerThread
-    fun hanzi2Pinyin(hanzi: CharSequence): PinyinSequence? {
-        var mr: MatchResult? = chineseRegex.matchAt(hanzi, 0) ?: return null
-        val list = mutableListOf<Pinyin>()
-        while (mr != null) {
-            pinyinCache[mr.value]?.let {
-                list.add(it)
+    fun hanzi2Pinyin(hanzi: CharSequence): PinyinSequence {
+        val words = hanzi.split(nonCharRegex)
+
+        val sequence = mutableListOf<Pinyin>()
+
+        words.forEach { word ->
+            var prevIndex = 0
+            var mr: MatchResult? = chineseRegex.matchAt(hanzi, 0)
+            if (mr != null) {
+                while (mr != null) {
+                    if (prevIndex < mr.range.first) {
+                        val nonHanzi = hanzi.substring(prevIndex, mr.range.first)
+                        sequence.add(Pinyin(nonHanzi))
+                    }
+                    prevIndex = mr.range.last + 1
+                    pinyinCache[mr.value]?.let {
+                        sequence.add(it)
+                    }
+                    mr = mr.next()
+                }
+            } else {
+                sequence.add(Pinyin(word))
             }
-            mr = mr.next()
         }
-        return PinyinSequence(list)
+
+        return PinyinSequence(sequence)
     }
 }
 
 data class PinyinSequence(val pinyin: List<Pinyin>) {
     fun serializeToString(): String =
-            pinyin.joinToString(separator = PinyinConverter.PINYIN_SPLITTER) {
-                it.serializeToString()
-            }
+        pinyin.joinToString(separator = PinyinConverter.PINYIN_SPLITTER) {
+            it.serializeToString()
+        }
 
     companion object {
         fun deserializeFromString(string: String): PinyinSequence =
-                PinyinSequence(
-                        string.split(PinyinConverter.PINYIN_SPLITTER).map {
-                            Pinyin.deserializeFromString(it)
-                        }
-                )
+            PinyinSequence(
+                string.split(PinyinConverter.PINYIN_SPLITTER).map {
+                    Pinyin.deserializeFromString(it)
+                }
+            )
     }
 }
 
@@ -85,12 +102,14 @@ data class PinyinSequence(val pinyin: List<Pinyin>) {
  * 一个字的拼音，可能是多音字
  */
 data class Pinyin(val readings: List<String>) {
+    constructor(reading: String) : this(listOf(reading))
+
     fun serializeToString(): String =
-            readings.joinToString(separator = PinyinConverter.PINYIN_SPLITTER_MULTI) { it }
+        readings.joinToString(separator = PinyinConverter.PINYIN_SPLITTER_MULTI) { it }
 
     companion object {
         fun deserializeFromString(string: String): Pinyin =
-                Pinyin(string.split(PinyinConverter.PINYIN_SPLITTER_MULTI_CHAR))
+            Pinyin(string.split(PinyinConverter.PINYIN_SPLITTER_MULTI_CHAR))
     }
 }
 

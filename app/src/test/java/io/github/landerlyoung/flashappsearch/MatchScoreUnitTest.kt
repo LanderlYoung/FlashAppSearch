@@ -57,4 +57,18 @@ class MatchScoreUnitTest {
 
         assertTrue(score1 < score2)
     }
+
+    @Test
+    fun testEnglishNameMatch() {
+        val keys = listOf(T9.k5, T9.k4, T9.k6)
+        val kim = PinyinSequence(
+            listOf(
+                Pinyin("Kim")
+            )
+        )
+
+        val score1 = MatchScoreCalculator.calculateMatchResult(keys, kim)
+
+        assertTrue(score1 > 0)
+    }
 }

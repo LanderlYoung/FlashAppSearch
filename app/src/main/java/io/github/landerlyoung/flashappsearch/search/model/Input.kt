@@ -9,12 +9,14 @@ package io.github.landerlyoung.flashappsearch.search.model
  * </pre>
  */
 data class Input(val keys: List<Char>) {
-    val keySets:Set<Char>
+    private val keySets:Set<Char>
     init {
         keySets = HashSet(keys)
     }
     constructor(keys: String) : this(keys.toCharArray().map { it.lowercaseChar() })
     constructor(char: Char) : this(listOf(char.lowercaseChar()))
+
+    fun containsKey(char: Char) = keySets.contains(char.lowercaseChar())
 
     companion object {
         @JvmField

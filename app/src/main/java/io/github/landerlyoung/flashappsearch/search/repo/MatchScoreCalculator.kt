@@ -55,7 +55,7 @@ object MatchScoreCalculator {
             reading.forEachIndexed { i, c ->
                 if (inputIndex < input.size) {
                     val inputKey = input[inputIndex]
-                    if (inputKey.keySets.contains(c)) {
+                    if (inputKey.containsKey(c)) {
                         val score = (10 - i).coerceAtLeast(1).toDouble().pow(2)
                         total += score
                         inputIndex++
