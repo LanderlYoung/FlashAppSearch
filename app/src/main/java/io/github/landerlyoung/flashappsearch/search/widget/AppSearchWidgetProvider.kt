@@ -13,7 +13,7 @@ import io.github.landerlyoung.flashappsearch.search.ui.AppSearchActivity
 
 /**
  * <pre>
- * Author: taylorcyang@tencent.com
+ * Author: landerlyoung@gmail.com
  * Date:   2018-06-26
  * Time:   00:27
  * Life with Passion, Code with Creativity.

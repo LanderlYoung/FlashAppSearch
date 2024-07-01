@@ -13,7 +13,7 @@ import androidx.room.RoomDatabase
 
 /**
  * <pre>
- * Author: taylorcyang@tencent.com
+ * Author: landerlyoung@gmail.com
  * Date:   2018-06-23
  * Time:   11:52
  * Life with Passion, Code with Creativity.

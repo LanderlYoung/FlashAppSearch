@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit
 
 /**
  * <pre>
- * Author: taylorcyang@tencent.com
+ * Author: landerlyoung@gmail.com
  * Date:   2018-06-23
  * Time:   12:24
  * Life with Passion, Code with Creativity.

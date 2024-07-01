@@ -10,7 +10,7 @@ import androidx.lifecycle.MutableLiveData
 
 /*
  * ```
- * Author: taylorcyang@tencent.com
+ * Author: landerlyoung@gmail.com
  * Date:   2021-03-04
  * Time:   17:57
  * Life with Passion, Code with Creativity.

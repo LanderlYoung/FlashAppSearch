@@ -19,7 +19,7 @@ import io.github.landerlyoung.flashappsearch.search.repo.PinyinSequence
 
 /*
  * ```
- * Author: taylorcyang@tencent.com
+ * Author: landerlyoung@gmail.com
  * Date:   2018-06-28
  * Time:   13:07
  * Life with Passion, Code with Creativity.

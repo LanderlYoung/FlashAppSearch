@@ -12,7 +12,7 @@ import androidx.compose.ui.graphics.Color
 
 /*
  * ```
- * Author: taylorcyang@tencent.com
+ * Author: landerlyoung@gmail.com
  * Date:   2021-03-05
  * Time:   15:43
  * Life with Passion, Code with Creativity.

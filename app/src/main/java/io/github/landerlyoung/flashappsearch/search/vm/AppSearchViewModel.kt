@@ -10,7 +10,7 @@ import io.github.landerlyoung.flashappsearch.search.utils.switchMapMulti
 
 /**
  * <pre>
- * Author: taylorcyang@tencent.com
+ * Author: landerlyoung@gmail.com
  * Date:   2018-06-25
  * Time:   20:45
  * Life with Passion, Code with Creativity.

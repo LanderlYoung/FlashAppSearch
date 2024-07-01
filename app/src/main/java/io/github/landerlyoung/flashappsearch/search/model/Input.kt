@@ -2,7 +2,7 @@ package io.github.landerlyoung.flashappsearch.search.model
 
 /**
  * <pre>
- * Author: taylorcyang@tencent.com
+ * Author: landerlyoung@gmail.com
  * Date:   2018-06-23
  * Time:   12:41
  * Life with Passion, Code with Creativity.

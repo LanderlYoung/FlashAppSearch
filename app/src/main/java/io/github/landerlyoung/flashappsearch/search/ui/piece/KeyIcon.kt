@@ -27,13 +27,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.min
 import io.github.landerlyoung.flashappsearch.search.model.Input
 import java.util.Locale
 
 /*
  * ```
- * Author: taylorcyang@tencent.com
+ * Author: landerlyoung@gmail.com
  * Date:   2021-03-04
  * Time:   15:22
  * Life with Passion, Code with Creativity.
@@ -61,13 +62,15 @@ fun KeyIcon(
                 .weight(5f)
         ) {
             val fontSize = calculateFontSize(maxWidth, maxHeight)
+            val fontSizeSp = LocalDensity.current.run { fontSize.toSp() }
 
             Text(
                 text = first,
                 color = color,
-                fontSize = LocalDensity.current.run { fontSize.toSp() },
+                fontSize = fontSizeSp,
                 modifier = Modifier.fillMaxSize(),
                 textAlign = TextAlign.Center,
+                lineHeight = fontSizeSp,
             )
         }
 
@@ -79,13 +82,15 @@ fun KeyIcon(
                 .weight(2f)
         ) {
             val fontSize = calculateFontSize(maxWidth, maxHeight)
+            val fontSizeSp = LocalDensity.current.run { fontSize.toSp() }
 
             Text(
                 text = second,
                 color = color.convert(ColorSpaces.Srgb).copy(alpha = 0.8f),
-                fontSize = LocalDensity.current.run { fontSize.toSp() },
+                fontSize = fontSizeSp,
                 modifier = Modifier.fillMaxSize(),
                 textAlign = TextAlign.Center,
+                lineHeight = fontSizeSp,
             )
         }
 
@@ -105,7 +110,7 @@ fun PreviewKeyIcon() {
             key = Input("2abc"),
             color = Color.Black,
             Modifier.size(
-                200.dp, 100.dp
+                20.dp, 10.dp
             )
         )
     }

@@ -20,7 +20,7 @@ import io.github.landerlyoung.flashappsearch.search.model.T9
 
 /*
  * ```
- * Author: taylorcyang@tencent.com
+ * Author: landerlyoung@gmail.com
  * Date:   2021-03-04
  * Time:   16:29
  * Life with Passion, Code with Creativity.
@@ -47,43 +47,25 @@ fun KeyPadT9(
     modifier: Modifier = Modifier
 ) {
     Column(modifier) {
-        KeyPadRow(
-            T9.k1,
-            T9.k2,
-            T9.k3,
-            onKey
-        )
-        KeyPadRow(
-            T9.k4,
-            T9.k5,
-            T9.k6,
-            onKey
-        )
-        KeyPadRow(
-            T9.k7,
-            T9.k8,
-            T9.k9,
-            onKey
-        )
+        KeyPadRow(T9.k1, T9.k2, T9.k3, onKey)
+        KeyPadRow(T9.k4, T9.k5, T9.k6, onKey)
+        KeyPadRow(T9.k7, T9.k8, T9.k9, onKey)
         Row {
             val size = Modifier.size(t9Width, t9Height)
 
             Spacer(Modifier.weight(2f))
-            KeyIcon(key = T9.kHash, color = keyColor, size.clickable {
-            })
+            KeyIcon(key = T9.kHash, color = keyColor, size.clickable {})
 
             Spacer(Modifier.weight(1f))
             KeyIcon(key = T9.k0, color = keyColor, size.clickable {
                 onKey(T9.k0)
             })
+
             Spacer(Modifier.weight(1f))
             KeyIcon(key = T9.kDelete, color = keyColor, size.combinedClickable(
-                onClick = {
-                    onBackspace()
-                },
-                onLongClick = {
-                    onClear()
-                }
+                onClick = onBackspace,
+                onLongClick = onClear
+
             ))
             Spacer(Modifier.weight(2f))
         }

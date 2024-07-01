@@ -26,7 +26,7 @@ import kotlin.time.Duration.Companion.seconds
 
 /**
  * <pre>
- * Author: taylorcyang@tencent.com
+ * Author: landerlyoung@gmail.com
  * Date:   2018-06-24
  * Time:   21:40
  * Life with Passion, Code with Creativity.

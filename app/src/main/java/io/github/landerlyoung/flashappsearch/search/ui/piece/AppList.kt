@@ -26,7 +26,7 @@ import io.github.landerlyoung.flashappsearch.search.utils.DrawablePainter
 
 /*
  * ```
- * Author: taylorcyang@tencent.com
+ * Author: landerlyoung@gmail.com
  * Date:   2021-03-04
  * Time:   17:40
  * Life with Passion, Code with Creativity.

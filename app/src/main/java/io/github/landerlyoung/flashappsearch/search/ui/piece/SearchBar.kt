@@ -31,7 +31,7 @@ import io.github.landerlyoung.flashappsearch.search.model.T9
 
 /*
  * ```
- * Author: taylorcyang@tencent.com
+ * Author: landerlyoung@gmail.com
  * Date:   2021-03-04
  * Time:   17:07
  * Life with Passion, Code with Creativity.

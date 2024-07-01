@@ -6,7 +6,7 @@ import androidx.lifecycle.MediatorLiveData
 
 /*
  * ```
- * Author: taylorcyang@tencent.com
+ * Author: landerlyoung@gmail.com
  * Date:   2018-06-27
  * Time:   13:43
  * Life with Passion, Code with Creativity.
